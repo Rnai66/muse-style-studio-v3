@@ -5,6 +5,11 @@ body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 img, video { max-width: 100%; display: block; }
 button, input, select, textarea { font-family: inherit; }
 
+/* ป้องกัน iOS ซูมหน้าจอเมื่อคลิกช่องกรอกข้อมูล */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
 /* ── DESIGN TOKENS ── */
 :root {
   --bg:        #0e0d0c;
@@ -42,8 +47,9 @@ html, body, #root {
 
 .app-root {
   min-height: 100dvh;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom));
-  padding-top: var(--safe-top);
+  /* รองรับขอบจอมือถือ/ติ่งหน้าจอทุกรุ่น */
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 15px);
+  padding-top: calc(var(--safe-top) + 10px);
 }
 
 /* ── SCROLLBAR ── */
