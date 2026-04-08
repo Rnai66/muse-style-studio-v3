@@ -1,0 +1,161 @@
+.avd-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .65rem;
+}
+
+/* ── Portrait frame ── */
+.avd-portrait {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 0 1.5px rgba(192,132,252,.25);
+  background: rgba(255,255,255,.04);
+  flex-shrink: 0;
+}
+
+.avd-ai-img {
+  display: block;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.avd-ai-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(124,58,237,.85);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: .6rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: .08em;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* ── Loading overlay ── */
+.avd-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 20, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  border-radius: 16px;
+}
+.avd-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(192,132,252,.2);
+  border-top-color: #c084fc;
+  animation: avd-spin .8s linear infinite;
+}
+@keyframes avd-spin { to { transform: rotate(360deg); } }
+
+.avd-loading-overlay p {
+  margin: 0;
+  font-size: .8rem;
+  color: rgba(255,255,255,.85);
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  line-height: 1.5;
+}
+.avd-loading-hint {
+  font-size: .65rem;
+  color: rgba(255,255,255,.4);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Generate button ── */
+.avd-gen-btn {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .55rem 1.2rem;
+  background: linear-gradient(135deg, #7c3aed, #c084fc);
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: .03em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(124,58,237,.4);
+  transition: opacity .2s, transform .15s;
+  white-space: nowrap;
+}
+.avd-gen-btn:hover:not(:disabled) {
+  opacity: .9;
+  transform: translateY(-1px);
+}
+.avd-gen-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.avd-gen-btn.loading { background: rgba(124,58,237,.5); }
+
+.avd-btn-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  animation: avd-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Error ── */
+.avd-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  border-radius: 8px;
+  padding: .55rem .9rem;
+  font-size: .7rem;
+  color: #fca5a5;
+  font-family: 'Inter', sans-serif;
+  max-width: 240px;
+  text-align: center;
+}
+.avd-error-link {
+  display: inline-block;
+  padding: .25rem .75rem;
+  background: rgba(239,68,68,.2);
+  border: 1px solid rgba(239,68,68,.4);
+  border-radius: 20px;
+  color: #fca5a5;
+  font-size: .68rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+}
+.avd-error-link:hover { background: rgba(239,68,68,.35); }
+
+/* ── Prompt toggle ── */
+.avd-prompt-toggle {
+  background: none;
+  border: none;
+  font-size: .62rem;
+  color: rgba(255,255,255,.3);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  padding: 0;
+}
+.avd-prompt-text {
+  font-size: .62rem;
+  color: rgba(255,255,255,.25);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  max-width: 220px;
+  text-align: center;
+  margin: 0;
+}

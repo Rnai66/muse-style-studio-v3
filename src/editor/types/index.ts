@@ -1,0 +1,85 @@
+// ── MUSE Image Editor — Core Types ──
+
+export type LayerCategory =
+  | 'base'         // original person photo
+  | 'top'          // เสื้อ
+  | 'bottom'       // กางเกง / กระโปรง
+  | 'dress'        // ชุดเดรส (replaces top+bottom)
+  | 'hair'         // ทรงผม
+  | 'shoes'        // รองเท้า
+  | 'bag'          // กระเป๋า
+  | 'hat'          // หมวก
+  | 'glasses'      // แว่นตา
+  | 'jewelry'      // เครื่องประดับ
+  | 'outerwear';   // เสื้อคลุม
+
+export interface Transform {
+  x: number;        // position
+  y: number;
+  scale: number;    // 1.0 = original size (uniform)
+  scaleX: number;   // width multiplier: <1 = ผอม, >1 = อ้วน
+  scaleY: number;   // height multiplier: <1 = ต่ำ, >1 = สูง
+  rotation: number; // degrees
+  opacity: number;  // 0-1
+  flipX: boolean;
+}
+
+export interface Layer {
+  id: string;
+  category: LayerCategory;
+  name: string;
+  imageUrl: string;      // URL or base64
+  transform: Transform;
+  visible: boolean;
+  locked: boolean;
+  aiProcessed: boolean;  // true = already run through AI pipeline
+}
+
+export interface EditorState {
+  baseImage: string | null;      // original person photo (base64)
+  baseImageSize: { w: number; h: number };
+  layers: Layer[];
+  selectedLayerId: string | null;
+  canvasW: number;
+  canvasH: number;
+  zoom: number;
+  showGrid: boolean;
+  showComparison: boolean;
+  aiResultUrl: string | null;    // final AI-generated image
+}
+
+export interface CatalogItem {
+  id: string;
+  name: string;
+  nameEn: string;
+  category: LayerCategory;
+  previewUrl: string;     // emoji or image URL
+  color: string;          // hex for swatch
+  price: string;
+  tags: string[];
+  aiPrompt: string;       // prompt to send to Replicate
+  replicateCategory: string; // 'upper_body' | 'lower_body' | 'dresses'
+}
+
+export const DEFAULT_TRANSFORM: Transform = {
+  x: 0, y: 0, scale: 1, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1, flipX: false,
+};
+
+export const CATEGORY_META: Record<LayerCategory, { label: string; icon: string; aiSupported: boolean }> = {
+  base:      { label: 'รูปต้นฉบับ',   icon: '👤', aiSupported: false },
+  top:       { label: 'เสื้อ',         icon: '👚', aiSupported: true  },
+  bottom:    { label: 'กางเกง/กระโปรง', icon: '👖', aiSupported: true  },
+  dress:     { label: 'ชุดเดรส',       icon: '👗', aiSupported: true  },
+  hair:      { label: 'ทรงผม',         icon: '💇', aiSupported: true  },
+  shoes:     { label: 'รองเท้า',       icon: '👠', aiSupported: true  },
+  bag:       { label: 'กระเป๋า',       icon: '👜', aiSupported: false },
+  hat:       { label: 'หมวก',          icon: '🧢', aiSupported: false },
+  glasses:   { label: 'แว่นตา',        icon: '👓', aiSupported: false },
+  jewelry:   { label: 'เครื่องประดับ', icon: '💍', aiSupported: false },
+  outerwear: { label: 'เสื้อคลุม',    icon: '🧥', aiSupported: true  },
+};
+
+export const LAYER_ORDER: LayerCategory[] = [
+  'base', 'hair', 'top', 'bottom', 'dress', 'outerwear',
+  'shoes', 'bag', 'hat', 'glasses', 'jewelry',
+];

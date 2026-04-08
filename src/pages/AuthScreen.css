@@ -1,0 +1,133 @@
+.auth-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--bg-grad, linear-gradient(135deg, #110e0c 0%, #1e1b19 100%));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg2, #1f1b19);
+  border: 1px solid var(--border1, #302b28);
+  border-radius: var(--r2, 1rem);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: fade-up 0.4s ease-out forwards;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--text1);
+  margin-bottom: 0.5rem;
+}
+
+.auth-logo em {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.auth-subtitle {
+  color: var(--text2);
+  font-size: 0.9rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-label {
+  font-size: 0.85rem;
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.auth-input {
+  background: var(--bg3, #2a2522);
+  border: 1px solid var(--border2, #3c3631);
+  color: var(--text1);
+  border-radius: var(--r, 8px);
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 184, 115, 0.2);
+}
+
+.auth-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 1rem;
+  border-radius: var(--r);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.auth-btn:hover {
+  opacity: 0.9;
+}
+
+.auth-btn:active {
+  transform: scale(0.98);
+}
+
+.auth-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  background: rgba(255, 60, 60, 0.1);
+  border: 1px solid rgba(255, 60, 60, 0.3);
+  color: #ff6b6b;
+  padding: 0.8rem;
+  border-radius: var(--r);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+
+.auth-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}

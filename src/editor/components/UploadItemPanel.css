@@ -1,0 +1,260 @@
+.uip-root {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: .75rem;
+}
+
+/* ── Drop zone ── */
+.uip-dropzone {
+  border: 2px dashed rgba(192, 132, 252, 0.35);
+  border-radius: 12px;
+  background: rgba(192, 132, 252, 0.04);
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  overflow: hidden;
+}
+.uip-dropzone:hover,
+.uip-dropzone.dragging {
+  border-color: rgba(192, 132, 252, 0.75);
+  background: rgba(192, 132, 252, 0.1);
+}
+.uip-dropzone.has-preview {
+  border-style: solid;
+  min-height: 140px;
+  cursor: default;
+}
+
+.uip-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  pointer-events: none;
+}
+.uip-drop-icon   { font-size: 1.75rem; }
+.uip-drop-title  { font-size: .78rem; color: rgba(255,255,255,.75); font-family: 'Inter', sans-serif; }
+.uip-drop-hint   { font-size: .65rem; color: rgba(255,255,255,.35); font-family: 'Inter', sans-serif; }
+
+/* Preview */
+.uip-preview-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.uip-preview-img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+}
+.uip-bg-removed-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(34, 197, 94, 0.85);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: .03em;
+}
+
+.uip-loading {
+  font-size: .72rem;
+  color: rgba(255,255,255,.45);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Remove-bg action row ── */
+.uip-rembg-row {
+  display: flex;
+  gap: .5rem;
+}
+
+.uip-rembg-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .55rem .75rem;
+  background: linear-gradient(135deg, rgba(124,58,237,.8), rgba(192,132,252,.8));
+  border: 1px solid rgba(192,132,252,.5);
+  border-radius: 10px;
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: opacity .2s;
+  letter-spacing: .02em;
+}
+.uip-rembg-btn:hover:not(:disabled) { opacity: .85; }
+.uip-rembg-btn:disabled { opacity: .55; cursor: not-allowed; }
+.uip-rembg-btn.loading { opacity: .75; }
+
+.uip-restore-btn {
+  flex: 1;
+  padding: .55rem .75rem;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  color: rgba(255,255,255,.6);
+  font-size: .75rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background .15s;
+}
+.uip-restore-btn:hover { background: rgba(255,255,255,.1); }
+
+.uip-change-btn {
+  padding: .55rem .7rem;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  color: rgba(255,255,255,.5);
+  font-size: .75rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.uip-change-btn:hover { background: rgba(255,255,255,.1); }
+
+/* Spinner */
+.uip-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
+  animation: uip-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes uip-spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.uip-error {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  border-radius: 8px;
+  padding: .5rem .7rem;
+  font-size: .72rem;
+  color: #fca5a5;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Form ── */
+.uip-form { display: flex; flex-direction: column; gap: .6rem; }
+
+.uip-field { display: flex; flex-direction: column; gap: .3rem; }
+.uip-label {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: rgba(255,255,255,.4);
+  font-family: 'Inter', sans-serif;
+}
+.uip-input {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: .45rem .65rem;
+  color: #fff;
+  font-size: .8rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .2s;
+}
+.uip-input:focus { border-color: rgba(192, 132, 252, .6); }
+.uip-input::placeholder { color: rgba(255,255,255,.25); }
+
+/* Category grid */
+.uip-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .35rem;
+}
+.uip-cat-btn {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .5rem;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  font-family: 'Inter', sans-serif;
+}
+.uip-cat-btn:hover { background: rgba(255,255,255,.09); }
+.uip-cat-btn.active {
+  border-color: rgba(192, 132, 252, .7);
+  background: rgba(192, 132, 252, .12);
+}
+.uip-cat-icon { font-size: .95rem; }
+.uip-cat-label { font-size: .68rem; color: rgba(255,255,255,.7); }
+.uip-cat-btn.active .uip-cat-label { color: #c084fc; }
+
+/* Action buttons */
+.uip-actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: .1rem;
+}
+.uip-add-btn {
+  flex: 1;
+  padding: .6rem;
+  background: linear-gradient(135deg, #7c3aed, #c084fc);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: .03em;
+  transition: opacity .2s;
+}
+.uip-add-btn:hover { opacity: .88; }
+.uip-reset-btn {
+  padding: .6rem .9rem;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  color: rgba(255,255,255,.5);
+  font-size: .78rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background .15s;
+}
+.uip-reset-btn:hover { background: rgba(255,255,255,.12); }
+
+/* Tip */
+.uip-tip {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: .65rem .75rem;
+}
+.uip-tip p {
+  margin: 0;
+  font-size: .7rem;
+  color: rgba(255,255,255,.35);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.55;
+}
+.uip-tip strong { color: rgba(255,255,255,.55); }
