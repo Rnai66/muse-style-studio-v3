@@ -24,7 +24,11 @@ export default function ImageEditorScreen() {
 
   const [catFilter, setCatFilter] = useState<LayerCategory>('dress');
   const [searchQ, setSearchQ]     = useState('');
-  const [activePanel, setActivePanel] = useState<'layers' | 'catalog' | 'transform' | 'upload'>('catalog');
+  
+  // Drawer States
+  const [leftDrawer, setLeftDrawer] = useState<'catalog' | 'layers' | null>(null);
+  const [rightDrawer, setRightDrawer] = useState<'upload' | 'transform' | 'ai' | null>(null);
+
   const [aiPanel, setAIPanel]     = useState<'tryon' | 'hair' | null>(null);
 
   // ── Load base image ──
@@ -49,14 +53,15 @@ export default function ImageEditorScreen() {
 
   // ── Add catalog item as layer ──
   const addItem = useCallback((item: CatalogItem) => {
-    // For now use emoji as placeholder; AI replaces it
     editor.addLayer(item, item.previewUrl);
+    if (window.innerWidth <= 768) setLeftDrawer(null); // Auto-close on mobile after adding
   }, [editor]);
 
   // ── Add uploaded item as layer ──
   const addUploadedItem = useCallback((item: CatalogItem, imageUrl: string) => {
     editor.addLayer(item, imageUrl);
-    setActivePanel('layers');
+    setRightDrawer(null);
+    setLeftDrawer('layers');
   }, [editor]);
 
   // ── Run AI on selected layer ──
@@ -66,6 +71,8 @@ export default function ImageEditorScreen() {
     if (!layer) return;
 
     setAIPanel(layer.category === 'hair' ? 'hair' : 'tryon');
+    setRightDrawer('ai'); // Switch right drawer to AI to show progress
+    
     const catalogItem = CATALOG.find(c => c.name === layer.name);
 
     if (layer.category === 'hair') {
@@ -76,9 +83,7 @@ export default function ImageEditorScreen() {
         editor.setAIResult(hair.state.resultUrl);
       }
     } else {
-      const garmentUrl = layer.imageUrl.startsWith('data:')
-        ? layer.imageUrl
-        : editor.state.baseImage; // fallback
+      const garmentUrl = layer.imageUrl.startsWith('data:') ? layer.imageUrl : editor.state.baseImage;
       const cat = catalogItem?.replicateCategory ?? 'dresses';
       await tryon.tryOn(editor.state.baseImage, garmentUrl, cat);
       if (tryon.state.resultUrl) {
@@ -98,7 +103,6 @@ export default function ImageEditorScreen() {
     a.click();
   }, [editor.state]);
 
-  // Filtered catalog
   const filtered = (CATALOG_BY_CATEGORY[catFilter] ?? []).filter(i =>
     !searchQ || i.name.includes(searchQ) || i.nameEn.toLowerCase().includes(searchQ.toLowerCase())
   );
@@ -108,7 +112,6 @@ export default function ImageEditorScreen() {
 
   return (
     <div className="ie-root">
-
       {/* ── TOP TOOLBAR ── */}
       <div className="ie-toolbar">
         <div className="ie-toolbar-left">
@@ -124,96 +127,77 @@ export default function ImageEditorScreen() {
         </div>
         <div className="ie-logo serif">MUSE <em>Editor</em></div>
         <div className="ie-toolbar-right">
-          {/* Zoom */}
           <button className="tb-btn" onClick={() => editor.setZoom(editor.state.zoom - 0.1)}>−</button>
           <span className="tb-zoom">{Math.round(editor.state.zoom * 100)}%</span>
           <button className="tb-btn" onClick={() => editor.setZoom(editor.state.zoom + 0.1)}>+</button>
           <div className="tb-divider" />
-          <button className="tb-btn export" onClick={exportImage} disabled={!editor.state.baseImage} title="บันทึกรูป">
-            ↓ บันทึก
-          </button>
+          <button className="tb-btn export" onClick={exportImage} disabled={!editor.state.baseImage} title="บันทึกรูป">↓ บันทึก</button>
         </div>
       </div>
 
       {/* ── MAIN LAYOUT ── */}
       <div className="ie-body">
+        
+        {/* --- LEFT SIDEBAR (Menu Buttons) --- */}
+        <div className="ie-sidebar left">
+          <button className={`ie-side-btn ${leftDrawer === 'catalog' ? 'active' : ''}`} 
+                  onClick={() => { setLeftDrawer('catalog'); setRightDrawer(null); }}>
+            <span className="ie-side-icon">🛍</span>
+            <span className="ie-side-label">ไอเทม</span>
+          </button>
+          <button className={`ie-side-btn ${leftDrawer === 'layers' ? 'active' : ''}`} 
+                  onClick={() => { setLeftDrawer('layers'); setRightDrawer(null); }}>
+            <span className="ie-side-icon">🗂</span>
+            <span className="ie-side-label">Layers</span>
+          </button>
+        </div>
 
-        {/* LEFT PANEL */}
-        <div className="ie-left">
-          {/* Panel tabs */}
-          <div className="ie-panel-tabs">
-            {(['catalog', 'upload', 'layers', 'transform'] as const).map(p => (
-              <button key={p} className={`ie-ptab ${activePanel === p ? 'active' : ''}`}
-                onClick={() => setActivePanel(p)}>
-                { p === 'catalog'   ? '🛍 ไอเทม'
-                : p === 'upload'   ? '📎 อัปโหลด'
-                : p === 'layers'   ? '🗂 Layers'
-                :                   '⚙ ปรับแต่ง' }
-              </button>
-            ))}
+        {/* --- LEFT DRAWER (Content) --- */}
+        <div className={`ie-drawer left ${leftDrawer ? 'open' : ''}`}>
+          <div className="ie-panel-header">
+            <div className="ie-panel-title">{leftDrawer === 'catalog' ? '🛍 เลือกไอเทม' : '🗂 การจัดการเลเยอร์'}</div>
+            <button className="ie-panel-close" onClick={() => setLeftDrawer(null)}>✕</button>
           </div>
 
           {/* CATALOG PANEL */}
-          {activePanel === 'catalog' && (
+          {leftDrawer === 'catalog' && (
             <div className="ie-catalog">
-              {/* Category chips */}
               <div className="cat-scroll">
                 {SIDE_CATS.map(c => (
-                  <button key={c}
-                    className={`cat-chip ${catFilter === c ? 'active' : ''}`}
-                    onClick={() => setCatFilter(c)}
-                  >
+                  <button key={c} className={`cat-chip ${catFilter === c ? 'active' : ''}`} onClick={() => setCatFilter(c)}>
                     {CATEGORY_META[c].icon} {CATEGORY_META[c].label}
                   </button>
                 ))}
               </div>
-              {/* Search */}
-              <input
-                className="cat-search" placeholder="ค้นหาไอเทม..."
-                value={searchQ} onChange={e => setSearchQ(e.target.value)}
-              />
-              {/* Items */}
+              <input className="cat-search" placeholder="ค้นหาไอเทม..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
               <div className="cat-items">
                 {filtered.map(item => (
                   <div key={item.id} className="cat-item" onClick={() => addItem(item)}>
-                    <div className="ci-swatch" style={{ background: item.color }}>
-                      <span className="ci-emoji">{item.previewUrl}</span>
-                    </div>
+                    <div className="ci-swatch" style={{ background: item.color }}><span className="ci-emoji">{item.previewUrl}</span></div>
                     <div className="ci-info">
                       <div className="ci-name">{item.name}</div>
                       <div className="ci-name-en">{item.nameEn}</div>
-                      <div className="ci-tags">
-                        {item.tags.slice(0,2).map(t => <span key={t} className="ci-tag">{t}</span>)}
-                      </div>
+                      <div className="ci-tags">{item.tags.slice(0,2).map(t => <span key={t} className="ci-tag">{t}</span>)}</div>
                     </div>
                     <div className="ci-price">{item.price}</div>
                   </div>
                 ))}
-                {filtered.length === 0 && (
-                  <div className="cat-empty">ไม่พบไอเทม</div>
-                )}
+                {filtered.length === 0 && <div className="cat-empty">ไม่พบไอเทม</div>}
               </div>
             </div>
           )}
 
-          {/* UPLOAD PANEL */}
-          {activePanel === 'upload' && (
-            <div className="ie-upload">
-              <UploadItemPanel onAdd={addUploadedItem} />
-            </div>
-          )}
-
           {/* LAYERS PANEL */}
-          {activePanel === 'layers' && (
+          {leftDrawer === 'layers' && (
             <div className="ie-layers">
               {editor.state.layers.length === 0
-                ? <div className="layers-empty">ยังไม่มี layer<br/>เลือกไอเทมจากแท็บ "ไอเทม"</div>
+                ? <div className="layers-empty">ยังไม่มี layer<br/>เลือกไอเทมจากแท็บ "ไอเทม" ทางซ้ายมือได้เลย</div>
                 : [...editor.state.layers].reverse().map(layer => (
                     <LayerItem
                       key={layer.id}
                       layer={layer}
                       isSelected={layer.id === editor.state.selectedLayerId}
-                      onSelect={() => { editor.selectLayer(layer.id); setActivePanel('transform'); }}
+                      onSelect={() => { editor.selectLayer(layer.id); setRightDrawer('transform'); }}
                       onToggleVisible={() => editor.toggleVisible(layer.id)}
                       onToggleLock={() => editor.toggleLock(layer.id)}
                       onDelete={() => editor.removeLayer(layer.id)}
@@ -223,94 +207,118 @@ export default function ImageEditorScreen() {
               }
             </div>
           )}
-
-          {/* TRANSFORM PANEL */}
-          {activePanel === 'transform' && (
-            <div className="ie-transform">
-              {editor.selectedLayer
-                ? <TransformPanel
-                    transform={editor.selectedLayer.transform}
-                    onChange={patch => editor.updateTransform(editor.selectedLayer!.id, patch)}
-                  />
-                : <div className="layers-empty">เลือก layer ก่อน</div>
-              }
-            </div>
-          )}
-
-          {/* AI Panel */}
-          {(tryon.state.status !== 'idle' || hair.state.status !== 'idle') && (
-            <div className="ie-ai-section">
-              <AIProcessingPanel
-                state={activePipeline}
-                beforeUrl={editor.state.baseImage ?? undefined}
-                onReset={activeReset}
-                onDownload={(url: string) => editor.setAIResult(url)}
-                label={aiPanel === 'hair' ? 'AI Hair Styling' : 'AI Virtual Try-On'}
-              />
-            </div>
-          )}
         </div>
 
-        {/* CENTER CANVAS */}
+
+        {/* --- CENTER CANVAS --- */}
         <EditorCanvas
           state={editor.state}
           onSelectLayer={editor.selectLayer}
           onTransformLayer={(id, patch) => editor.updateTransform(id, patch)}
         />
 
-        {/* RIGHT QUICK-AI PANEL */}
-        <div className="ie-right">
-          <div className="ie-right-title">✦ AI Quick Actions</div>
 
-          {!editor.state.baseImage ? (
-            <div className="qai-hint">อัปโหลดรูปก่อน</div>
-          ) : (
-            <>
-              <button className="qai-btn" onClick={handleCameraPhoto}>
-                <span>📷</span>
-                <span>เปลี่ยนรูปฐาน</span>
-              </button>
+        {/* --- RIGHT DRAWER (Content) --- */}
+        <div className={`ie-drawer right ${rightDrawer ? 'open' : ''}`}>
+           <div className="ie-panel-header">
+            <div className="ie-panel-title">{
+               rightDrawer === 'upload' ? '📎 อัปโหลดรูปภาพ' : 
+               rightDrawer === 'transform' ? '⚙ ปรับแต่งขนาด/มุม' : 
+               '✨ AI Quick Actions'
+            }</div>
+            <button className="ie-panel-close" onClick={() => setRightDrawer(null)}>✕</button>
+          </div>
 
-              <div className="qai-section-label">Virtual Try-On</div>
-              {['dress','top','bottom','outerwear'].map(cat => {
-                const layer = editor.state.layers.find(l => l.category === cat as LayerCategory);
-                return layer ? (
-                  <button key={cat} className="qai-btn gold"
-                    onClick={() => runAIOnLayer(layer.id)}
-                    disabled={tryon.state.status === 'running'}>
-                    <span>{CATEGORY_META[cat as LayerCategory].icon}</span>
-                    <span>Try-On {layer.name}</span>
-                  </button>
-                ) : null;
-              })}
+          {/* UPLOAD PANEL */}
+          {rightDrawer === 'upload' && (
+            <div className="ie-upload">
+              <UploadItemPanel onAdd={addUploadedItem} />
+            </div>
+          )}
 
-              <div className="qai-section-label">Hair AI</div>
-              {editor.state.layers.filter(l => l.category === 'hair').map(layer => (
-                <button key={layer.id} className="qai-btn"
-                  onClick={() => runAIOnLayer(layer.id)}
-                  disabled={hair.state.status === 'running'}>
-                  <span>💇</span>
-                  <span>{layer.name}</span>
-                </button>
-              ))}
+          {/* TRANSFORM PANEL */}
+          {rightDrawer === 'transform' && (
+            <div className="ie-transform">
+              {editor.selectedLayer
+                ? <TransformPanel transform={editor.selectedLayer.transform} onChange={patch => editor.updateTransform(editor.selectedLayer!.id, patch)} />
+                : <div className="layers-empty">เลือก Layer ก่อนถึงจะปรับแต่งได้</div>
+              }
+            </div>
+          )}
 
-              {editor.state.aiResultUrl && (
+          {/* AI PANEL */}
+          {rightDrawer === 'ai' && (
+            <div className="ie-ai-section">
+              {!editor.state.baseImage ? (
+                 <div className="qai-hint">โปรดเพิ่มรูปคนตั้งต้นของคุณก่อน (ใช้ปุ่มเมนูด้านซ้ายบนสุด)</div>
+              ) : (
                 <>
-                  <div className="qai-divider" />
-                  <button className={`qai-btn ${editor.state.showComparison ? 'gold' : ''}`}
-                    onClick={editor.toggleComparison}>
-                    <span>⇆</span>
-                    <span>{editor.state.showComparison ? 'ซ่อนผล AI' : 'แสดงผล AI'}</span>
-                  </button>
-                  <button className="qai-btn" onClick={exportImage}>
-                    <span>↓</span>
-                    <span>บันทึกรูป</span>
-                  </button>
+                  <div className="qai-section-label">Virtual Try-On (ลองชุด AI)</div>
+                  {['dress','top','bottom','outerwear'].map(cat => {
+                    const layer = editor.state.layers.find(l => l.category === cat as LayerCategory);
+                    return layer ? (
+                      <button key={cat} className="qai-btn gold" onClick={() => runAIOnLayer(layer.id)} disabled={tryon.state.status === 'running'}>
+                        <span>{CATEGORY_META[cat as LayerCategory].icon}</span> <span>Try-On {layer.name}</span>
+                      </button>
+                    ) : null;
+                  })}
+
+                  <div className="qai-section-label">Hair AI (เปลี่ยนทรงผม AI)</div>
+                  {editor.state.layers.filter(l => l.category === 'hair').map(layer => (
+                    <button key={layer.id} className="qai-btn" onClick={() => runAIOnLayer(layer.id)} disabled={hair.state.status === 'running'}>
+                      <span>💇</span> <span>{layer.name}</span>
+                    </button>
+                  ))}
+
+                  {(tryon.state.status !== 'idle' || hair.state.status !== 'idle') && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <AIProcessingPanel
+                        state={activePipeline}
+                        beforeUrl={editor.state.baseImage ?? undefined}
+                        onReset={activeReset}
+                        onDownload={(url: string) => editor.setAIResult(url)}
+                        label={aiPanel === 'hair' ? 'AI Hair Styling' : 'AI Virtual Try-On'}
+                      />
+                    </div>
+                  )}
+
+                  {editor.state.aiResultUrl && (
+                    <>
+                      <div className="qai-divider" />
+                      <button className={`qai-btn ${editor.state.showComparison ? 'gold' : ''}`} onClick={editor.toggleComparison}>
+                        <span>⇆</span> <span>{editor.state.showComparison ? 'ซ่อนผล AI' : 'แสดงผล AI ตันฉบับ'}</span>
+                      </button>
+                    </>
+                  )}
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
+
+
+        {/* --- RIGHT SIDEBAR (Menu Buttons) --- */}
+        <div className="ie-sidebar right">
+          <button className={`ie-side-btn ${rightDrawer === 'ai' ? 'active' : ''}`} 
+                  onClick={() => { setRightDrawer('ai'); setLeftDrawer(null); }}>
+            <span className="ie-side-icon">✨</span>
+            <span className="ie-side-label">AI</span>
+          </button>
+          <button className={`ie-side-btn ${rightDrawer === 'upload' ? 'active' : ''}`} 
+                  onClick={() => { setRightDrawer('upload'); setLeftDrawer(null); }}>
+            <span className="ie-side-icon">📎</span>
+            <span className="ie-side-label">อัปโหลด</span>
+          </button>
+          <button className={`ie-side-btn ${rightDrawer === 'transform' ? 'active' : ''}`} 
+                  onClick={() => { setRightDrawer('transform'); setLeftDrawer(null); }}>
+            <span className="ie-side-icon">⚙</span>
+            <span className="ie-side-label">ปรับแต่ง</span>
+          </button>
+        </div>
+
+        {/* Backdrop for Mobile Overlay Defaults */}
+        <div className={`ie-backdrop ${(leftDrawer || rightDrawer) ? 'visible' : ''}`} 
+             onClick={() => { setLeftDrawer(null); setRightDrawer(null); }} />
       </div>
     </div>
   );
