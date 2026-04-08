@@ -1,10 +1,12 @@
 services:
-  # 1. API Server (FastAPI)
+  # 1. API Server & Worker (รวบตึง 2 ระบบให้อยู่ในโควต้าฟรี 1 เครื่อง)
   - type: web
     name: muse-backend
     env: docker
+    plan: free
     dockerContext: backend
     dockerfilePath: backend/Dockerfile
+    dockerCommand: sh -c "celery -A tasks worker --loglevel=info --concurrency=2 & uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: REDIS_URL
         fromService:
@@ -18,25 +20,8 @@ services:
       - key: REPLICATE_API_TOKEN
         sync: false
 
-  # 2. Background Worker (Celery)
-  - type: worker
-    name: muse-worker
-    env: docker
-    dockerContext: backend
-    dockerfilePath: backend/Dockerfile
-    dockerCommand: celery -A tasks worker --loglevel=info --concurrency=2
-    envVars:
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: muse-redis
-          property: connectionString
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: REPLICATE_API_TOKEN
-        sync: false
-
-  # 3. Message Broker / Cache (Redis)
+  # 2. Message Broker (Redis ฟรี 25MB)
   - type: redis
     name: muse-redis
-    ipAllowList: [] # Allows only internal connections within Render
+    plan: free
+    ipAllowList: []
