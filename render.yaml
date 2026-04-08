@@ -1,0 +1,42 @@
+services:
+  # 1. API Server (FastAPI)
+  - type: web
+    name: muse-backend
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: muse-redis
+          property: connectionString
+      - key: FRONTEND_URL
+        value: https://muse-style-studio-v3.web.app
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: REPLICATE_API_TOKEN
+        sync: false
+
+  # 2. Background Worker (Celery)
+  - type: worker
+    name: muse-worker
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    dockerCommand: celery -A tasks worker --loglevel=info --concurrency=2
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: muse-redis
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: REPLICATE_API_TOKEN
+        sync: false
+
+  # 3. Message Broker / Cache (Redis)
+  - type: redis
+    name: muse-redis
+    ipAllowList: [] # Allows only internal connections within Render
