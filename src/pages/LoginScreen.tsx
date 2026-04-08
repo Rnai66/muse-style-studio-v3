@@ -52,7 +52,7 @@ export default function LoginScreen() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">MUSE<em>.</em></div>
-          <div className="auth-subtitle"><span style={{ color: 'var(--accent)' }}>เข้าสู่ระบบ</span>เพื่อดีไซน์ลุคของคุณ</div>
+          <div className="auth-subtitle"><span style={{ color: 'var(--gold)' }}>เข้าสู่ระบบ</span>เพื่อดีไซน์ลุคของคุณ</div>
         </div>
 
         <form className="auth-form" onSubmit={handleLogin}>

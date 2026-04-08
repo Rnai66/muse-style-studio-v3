@@ -33,7 +33,7 @@
 }
 
 .auth-logo em {
-  color: var(--accent);
+  color: var(--gold);
   font-style: italic;
 }
 
@@ -73,12 +73,12 @@
 
 .auth-input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(255, 184, 115, 0.2);
 }
 
 .auth-btn {
-  background: var(--accent);
+  background: var(--gold);
   color: #000;
   border: none;
   padding: 1rem;
@@ -121,7 +121,7 @@
 }
 
 .auth-link {
-  color: var(--accent);
+  color: var(--gold);
   text-decoration: none;
   font-weight: 500;
   margin-left: 0.5rem;
