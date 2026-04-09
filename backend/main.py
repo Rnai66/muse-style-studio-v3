@@ -3,7 +3,6 @@ MUSE Style Studio — AI Backend
 FastAPI + Replicate API + Anthropic Claude
 """
 import os
-import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -68,22 +67,6 @@ async def health():
         "replicate": bool(os.getenv("REPLICATE_API_TOKEN")),
         "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
     }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Pre-load rembg ONNX models on startup to avoid cold-start delays."""
-    try:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info("Preloading rembg models on startup...")
-        # Load model lazily
-        await asyncio.to_thread(rembg._load_rembg_model)
-        logger.info("✓ rembg models preloaded successfully")
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f"Could not preload rembg models: {e}")
 
 
 if __name__ == "__main__":

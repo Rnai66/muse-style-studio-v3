@@ -10,9 +10,6 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download rembg models to avoid cold start delay
-RUN python3 -c "from rembg import new_session; new_session(model_name='u2net')" || true
-
 COPY . .
 
 EXPOSE 8000
