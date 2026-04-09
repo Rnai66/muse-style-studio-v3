@@ -69,6 +69,20 @@ async def health():
     }
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Pre-load rembg ONNX models on startup to avoid cold-start delays."""
+    try:
+        from routers.rembg import _init_models
+        import logging
+        logging.info("Preloading rembg models on startup...")
+        await _init_models()
+        logging.info("✓ rembg models preloaded successfully")
+    except Exception as e:
+        import logging
+        logging.warning(f"Could not preload rembg models: {e}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
