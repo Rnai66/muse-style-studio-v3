@@ -17,16 +17,23 @@ app = FastAPI(
     description="AI-powered fashion try-on and styling backend",
 )
 
-# CORS — allow frontend dev server + mobile app
+# CORS — allow frontend dev server + mobile app + production
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "capacitor://localhost",
+    "ionic://localhost",
+    "https://muse-style-studio-v3.web.app",  # Firebase production
+    "https://muse-style-studio-v3.firebaseapp.com",  # Firebase alt domain
+]
+# Add environment-specific override if set
+env_url = os.getenv("FRONTEND_URL", "").strip()
+if env_url:
+    allowed_origins.append(env_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "capacitor://localhost",
-        "ionic://localhost",
-        os.getenv("FRONTEND_URL", ""),
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

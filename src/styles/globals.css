@@ -43,6 +43,7 @@ html, body, #root {
   font-size: 15px;
   line-height: 1.6;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 .app-root {
@@ -50,6 +51,25 @@ html, body, #root {
   /* รองรับขอบจอมือถือ/ติ่งหน้าจอทุกรุ่น */
   padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 15px);
   padding-top: calc(var(--safe-top) + 10px);
+}
+
+/* ── RESPONSIVE FONT SIZING ── */
+@media (max-width: 1024px) {
+  html, body, #root { font-size: 14px; }
+}
+
+@media (max-width: 768px) {
+  html, body, #root { font-size: 13px; }
+  
+  /* Improve touch targets on mobile */
+  button, a, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  html, body, #root { font-size: 12px; }
 }
 
 /* ── SCROLLBAR ── */
@@ -68,11 +88,14 @@ html, body, #root {
   background: var(--gold); color: var(--bg);
   padding: .7rem 1.5rem; border-radius: var(--r);
   border: none; cursor: pointer;
-  font-family: var(--font-sans); font-size: .85rem; font-weight: 500;
-  letter-spacing: .06em; transition: background .2s;
+  font-family: var(--font-sans); font-size: .85rem; font-weight: 600;
+  letter-spacing: .06em; transition: all .2s;
   -webkit-tap-highlight-color: transparent;
+  min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
 }
-.btn-primary:active { background: var(--gold2); transform: scale(.97); }
+.btn-primary:hover:not(:disabled) { background: var(--gold2); transform: translateY(-1px); }
+.btn-primary:active { background: var(--gold2); transform: scale(.98); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
 .btn-outline {
   background: transparent; color: var(--cream);
@@ -81,7 +104,9 @@ html, body, #root {
   font-family: var(--font-sans); font-size: .85rem;
   letter-spacing: .06em; transition: all .2s;
   -webkit-tap-highlight-color: transparent;
+  min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
 }
+.btn-outline:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); background: var(--bg3); }
 .btn-outline:active { border-color: var(--gold); color: var(--gold); }
 
 .card {
@@ -89,7 +114,9 @@ html, body, #root {
   border: 0.5px solid var(--border);
   border-radius: var(--r2);
   overflow: hidden;
+  transition: all .2s;
 }
+.card:hover { border-color: var(--border2); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
 .section-title {
   font-family: var(--font-serif);
@@ -97,6 +124,27 @@ html, body, #root {
   color: var(--cream); line-height: 1.2;
 }
 .section-title em { font-style: italic; color: var(--gold); }
+
+/* ── RESPONSIVE ADJUSTMENTS ── */
+@media (max-width: 768px) {
+  .btn-primary, .btn-outline {
+    padding: .6rem 1.2rem; font-size: .8rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-primary, .btn-outline {
+    padding: .5rem 1rem; font-size: .75rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+}
 
 .page { padding: 1.25rem; padding-top: 1.5rem; }
 .page-header { margin-bottom: 1.5rem; }

@@ -134,6 +134,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
               className={`uip-rembg-btn ${removingBg ? 'loading' : ''}`}
               onClick={handleRemoveBg}
               disabled={removingBg}
+              title={removingBg ? 'กำลังประมวลผล (อาจใช้เวลา 15-60 วินาที)' : 'ลบพื้นหลังโดยใช้ AI'}
             >
               {removingBg
                 ? <><span className="uip-spinner" /> กำลังลบพื้นหลัง…</>
@@ -148,6 +149,12 @@ export default function UploadItemPanel({ onAdd }: Props) {
           <button className="uip-change-btn" onClick={() => fileRef.current?.click()}>
             📁 เปลี่ยนรูป
           </button>
+        </div>
+      )}
+
+      {removingBg && (
+        <div className="uip-processing-hint">
+          ⏳ กำลังประมวลผล (อาจใช้เวลา 15-60 วินาที ขึ้นอยู่กับขนาดและความซับซ้อนของรูป)
         </div>
       )}
 

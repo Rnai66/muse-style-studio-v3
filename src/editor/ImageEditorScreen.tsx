@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { CameraSource } from '@capacitor/camera';
 import { useCamera } from '@/hooks/useCamera';
 import { useTryOnPipeline, useHairPipeline } from '@/hooks/useAIPipeline';
@@ -15,6 +15,15 @@ import './ImageEditorScreen.css';
 
 const SIDE_CATS: LayerCategory[] = ['top', 'bottom', 'dress', 'hair', 'shoes', 'bag', 'outerwear'];
 
+// Helper to detect device type
+function getDeviceType() {
+  const width = window.innerWidth;
+  if (width < 480) return 'mobile-small';
+  if (width < 768) return 'mobile';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+}
+
 export default function ImageEditorScreen() {
   const { image, takePhoto } = useCamera();
   const editor = useEditorStore();
@@ -24,12 +33,23 @@ export default function ImageEditorScreen() {
 
   const [catFilter, setCatFilter] = useState<LayerCategory>('dress');
   const [searchQ, setSearchQ]     = useState('');
+  const [deviceType, setDeviceType] = useState<'mobile-small' | 'mobile' | 'tablet' | 'desktop'>(getDeviceType());
   
   // Drawer States
   const [leftDrawer, setLeftDrawer] = useState<'catalog' | 'layers' | null>(null);
   const [rightDrawer, setRightDrawer] = useState<'upload' | 'transform' | 'ai' | null>(null);
 
   const [aiPanel, setAIPanel]     = useState<'tryon' | 'hair' | null>(null);
+  
+  // Handle window resize for responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      setDeviceType(getDeviceType());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ── Load base image ──
   const loadBase = useCallback((dataUrl: string) => {
@@ -54,15 +74,24 @@ export default function ImageEditorScreen() {
   // ── Add catalog item as layer ──
   const addItem = useCallback((item: CatalogItem) => {
     editor.addLayer(item, item.previewUrl);
-    if (window.innerWidth <= 768) setLeftDrawer(null); // Auto-close on mobile after adding
-  }, [editor]);
+    // Auto-close drawers on mobile/tablet after adding item
+    if (deviceType !== 'desktop') {
+      setLeftDrawer(null);
+      setRightDrawer(null);
+    }
+  }, [editor, deviceType]);
 
   // ── Add uploaded item as layer ──
   const addUploadedItem = useCallback((item: CatalogItem, imageUrl: string) => {
     editor.addLayer(item, imageUrl);
-    setRightDrawer(null);
-    setLeftDrawer('layers');
-  }, [editor]);
+    if (deviceType !== 'desktop') {
+      setRightDrawer(null);
+      setLeftDrawer('layers');
+    } else {
+      setRightDrawer(null);
+      setLeftDrawer('layers');
+    }
+  }, [editor, deviceType]);
 
   // ── Run AI on selected layer ──
   const runAIOnLayer = useCallback(async (layerId: string) => {
