@@ -154,7 +154,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
 
       {removingBg && (
         <div className="uip-processing-hint">
-          ⏳ กำลังประมวลผล (อาจใช้เวลา 15-60 วินาที ขึ้นอยู่กับขนาดและความซับซ้อนของรูป)
+          ⏳ กำลังประมวลผล... (อาจใช้เวลา 1-3 นาที)
         </div>
       )}
 

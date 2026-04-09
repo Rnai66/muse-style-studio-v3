@@ -17,9 +17,9 @@ export function useRemoveBg() {
     setLoading(true);
     setError(null);
     try {
-      // Increase timeout to 120 seconds for rembg processing
+      // Increase timeout to 180 seconds for rembg processing (includes ONNX model loading)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
+      const timeoutId = setTimeout(() => controller.abort(), 180000);
 
       try {
         const res = await fetch(`${BACKEND}/api/rembg/`, {
@@ -46,7 +46,7 @@ export function useRemoveBg() {
       } catch (e: unknown) {
         clearTimeout(timeoutId);
         if ((e as DOMException)?.name === 'AbortError') {
-          throw new Error('ลบพื้นหลังใช้เวลานาน (>120 วินาที) - ลองใหม่หรือเลือกรูปที่เล็กกว่า');
+          throw new Error('ลบพื้นหลังใช้เวลานาน (>180 วินาที) - ลองใหม่หรือเลือกรูปที่เล็กกว่า');
         }
         throw e;
       }

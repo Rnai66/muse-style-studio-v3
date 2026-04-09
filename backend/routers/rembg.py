@@ -107,13 +107,13 @@ async def remove_background(req: RemoveBgRequest):
         logger.info(f"Starting background removal for {len(img_bytes)} byte image")
         result_bytes = await asyncio.wait_for(
             asyncio.to_thread(_process_rembg, img_bytes),
-            timeout=120  # 2 minute max timeout
+            timeout=180  # 3 minute max timeout (includes ONNX model loading on first request)
         )
     except asyncio.TimeoutError:
-        logger.warning("Background removal timed out after 120 seconds")
+        logger.warning("Background removal timed out after 180 seconds")
         raise HTTPException(
             status_code=504,
-            detail="Background removal took too long. Try with a smaller or simpler image."
+            detail="Background removal took too long (>3 minutes). Try with a smaller or simpler image."
         )
     except Exception as e:
         logger.error(f"Background removal failed: {e}")
