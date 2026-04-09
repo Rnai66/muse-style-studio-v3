@@ -13,7 +13,7 @@ load_dotenv()
 
 app = FastAPI(
     title="MUSE Style Studio API",
-    version="2.0.0",
+    version="2.0.1",
     description="AI-powered fashion try-on and styling backend",
 )
 
