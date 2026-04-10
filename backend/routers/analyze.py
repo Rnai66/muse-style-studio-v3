@@ -88,10 +88,11 @@ async def analyze_body(req: AnalyzeRequest):
     except Exception as e:
         raise HTTPException(400, f"รูปภาพไม่ถูกต้อง: {e}")
 
-    client = anthropic.Anthropic(api_key=api_key)
+    # BUG FIX: Use AsyncAnthropic — synchronous client blocks the FastAPI event loop
+    client = anthropic.AsyncAnthropic(api_key=api_key)
     try:
-        msg = client.messages.create(
-            model="claude-opus-4-5",
+        msg = await client.messages.create(
+            model="claude-sonnet-4-6",   # BUG FIX: "claude-opus-4-5" was an invalid model string
             max_tokens=1024,
             system=SYSTEM,
             messages=[{"role": "user", "content": [

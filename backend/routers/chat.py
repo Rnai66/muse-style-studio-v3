@@ -17,7 +17,7 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     system: str
     messages: list[Any]   # list of Anthropic-format message dicts
-    model: str = "claude-opus-4-5"
+    model: str = "claude-sonnet-4-6"   # BUG FIX: "claude-opus-4-5" was an invalid model string
     max_tokens: int = 1024
 
 
@@ -27,9 +27,10 @@ async def chat(req: ChatRequest):
     if not api_key:
         raise HTTPException(503, "ANTHROPIC_API_KEY ยังไม่ได้ตั้งค่า")
 
-    client = anthropic.Anthropic(api_key=api_key)
+    # BUG FIX: Use AsyncAnthropic — synchronous client blocks the FastAPI event loop
+    client = anthropic.AsyncAnthropic(api_key=api_key)
     try:
-        msg = client.messages.create(
+        msg = await client.messages.create(
             model=req.model,
             max_tokens=req.max_tokens,
             system=req.system,

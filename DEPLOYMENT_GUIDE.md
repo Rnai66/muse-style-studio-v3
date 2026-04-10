@@ -44,15 +44,40 @@ This document outlines the performance optimizations and timeout fixes applied t
 
 ## Deployment Steps
 
-### Step 1: Deploy Frontend
+### ⚠️ CRITICAL: Environment Variables
+The frontend needs `VITE_BACKEND_URL` set during the build. If this is missing, the app defaults to `http://localhost:8000` which fails on production.
+
+### Option A: Automatic Deployment (Recommended)
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys to Firebase when you push to main.
+
+**Setup Instructions:**
+1. Go to GitHub → Your Repo → Settings → Secrets and variables → Actions
+2. Add these secrets from your `.env` file:
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+   - `VITE_FIREBASE_MEASUREMENT_ID`
+3. Go to Firebase Console → Project Settings → Service Accounts → Generate new private key
+4. Add the JSON key as `FIREBASE_SERVICE_ACCOUNT` secret
+5. Push to main - deployment happens automatically
+
+### Option B: Manual Deployment
+If you prefer to deploy manually:
+
 ```bash
-# From project root
-npm run build
+# Step 1: Build frontend with environment variables set
+VITE_BACKEND_URL=https://muse-backend-q8aa.onrender.com npm run build
+
+# Step 2: Deploy frontend to Firebase
 firebase deploy --only hosting
 ```
-**Expected Result**: Code uploaded to `muse-style-studio-v3.web.app`
 
-### Step 2: Deploy Backend
+**Expected Result**: Code uploaded to `muse-style-studio-v3.web.app` with correct backend URL
+
+### Step 3: Deploy Backend
 ```bash
 # Push to Render - changes will auto-trigger build
 git push origin main
@@ -67,8 +92,25 @@ git push origin main
 
 ### Pre-Deployment (Local Testing)
 - [ ] Run `npm run build` - no TypeScript errors
-- [ ] Run `npm run preview` - test UI locally
-- [ ] Verify `.env` has `VITE_BACKEND_URL=https://muse-backend-q8aa.onrender.com`
+- [ ] Check that `dist/` was created with your files
+- [ ] Verify `.env` or `.env.production` has `VITE_BACKEND_URL=https://muse-backend-q8aa.onrender.com`
+- [ ] Run `npm run preview` - test UI locally and verify background removal works
+- [ ] **Verify in DevTools**: Go to Network tab, check that rembg requests go to `https://muse-backend-q8aa.onrender.com/api/rembg/` (NOT localhost)
+
+### Troubleshooting: "Background removal fails on production but works locally"
+This indicates the backend URL environment variable was not set during the Firebase build.
+
+**Debug Steps:**
+1. Open DevTools (F12) on the production app
+2. Go to Network tab
+3. Click "Remove Background" button
+4. Look at where the request goes:
+   - ✅ **Good**: `https://muse-backend-q8aa.onrender.com/api/rembg/`
+   - ❌ **Bad**: `http://localhost:8000/api/rembg/` or fails with CORS error
+5. If it's going to localhost, rebuild and deploy again:
+   ```bash
+   VITE_BACKEND_URL=https://muse-backend-q8aa.onrender.com npm run build && firebase deploy --only hosting
+   ```
 
 ### Post-Deployment (Production Testing)
 

@@ -244,12 +244,13 @@ export function useStylePipeline() {
       if (input.items.length > 0) {
         const item = input.items[0];
         setState(s => ({ ...s, message: '👗 กำลังลองชุด...' }));
-        // Backend expects base64 data URLs (it strips the prefix itself)
+        // BUG FIX: was `data:image/jpeg;base64,${item.base64}` — hardcoded jpeg
+        // would corrupt PNG / WebP uploads. Use dataUrl which carries the correct prefix.
         const resultUrl = await runStep(
           '/api/tryon/',
           {
             person_image: currentImageDataUrl,
-            garment_image: `data:image/jpeg;base64,${item.base64}`,
+            garment_image: item.dataUrl,
             category: item.category,
           },
           stepsDone * span,

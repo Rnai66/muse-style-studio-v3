@@ -50,20 +50,23 @@ def _process_rembg(img_bytes: bytes) -> bytes:
     """CPU-bound: strip background with rembg, return PNG bytes."""
     try:
         from rembg import remove, new_session
+        import time
         
         # Load or use cached model
         session = _load_rembg_model()
         if session is False:
             raise RuntimeError("rembg models failed to load")
         
+        start_time = time.time()
         logger.info(f"Processing image ({len(img_bytes)} bytes)")
         
         inp = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
         original_size = inp.size
         logger.info(f"Input image size: {original_size}")
         
-        # Resize if too large to speed up processing
-        max_dimension = 1024
+        # Aggressive resize for slow Render tier to speed up processing
+        # This is the most important optimization for free tier
+        max_dimension = 768  # Reduced from 1024 for faster processing on Render
         if max(original_size) > max_dimension:
             scale = max_dimension / max(original_size)
             new_size = (int(original_size[0] * scale), int(original_size[1] * scale))
@@ -78,10 +81,13 @@ def _process_rembg(img_bytes: bytes) -> bytes:
             out = out.resize(original_size, Image.Resampling.LANCZOS)
             logger.info(f"Upscaled back to {original_size}")
         
+        # Optimize PNG compression for faster saving
         buf = io.BytesIO()
-        out.save(buf, format="PNG")
+        out.save(buf, format="PNG", optimize=True)
         result = buf.getvalue()
-        logger.info(f"✓ Background removed successfully ({len(result)} bytes)")
+        
+        elapsed = time.time() - start_time
+        logger.info(f"✓ Background removed successfully in {elapsed:.1f}s ({len(result)} bytes)")
         return result
         
     except Exception as e:
@@ -107,13 +113,13 @@ async def remove_background(req: RemoveBgRequest):
         logger.info(f"Starting background removal for {len(img_bytes)} byte image")
         result_bytes = await asyncio.wait_for(
             asyncio.to_thread(_process_rembg, img_bytes),
-            timeout=180  # 3 minute max timeout (includes ONNX model loading on first request)
+            timeout=300  # 5 minute max timeout (includes ONNX model loading on first request, Render free tier is slow)
         )
     except asyncio.TimeoutError:
-        logger.warning("Background removal timed out after 180 seconds")
+        logger.warning("Background removal timed out after 300 seconds")
         raise HTTPException(
             status_code=504,
-            detail="Background removal took too long (>3 minutes). Try with a smaller or simpler image."
+            detail="Background removal took too long (>5 minutes). Try with a smaller or simpler image."
         )
     except Exception as e:
         logger.error(f"Background removal failed: {e}")

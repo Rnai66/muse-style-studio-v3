@@ -66,36 +66,49 @@ async def virtual_tryon(
     category: str = "upper_body",  # upper_body | lower_body | dresses | outerwear | accessories | shoes
 ) -> str:
     """
-    Run virtual try-on using FLUX.1 Kontext Pro.
-    We pass the person image, then prompt Kontext to dress them in the garment.
+    Run virtual try-on using IDM-VTON (cuuupid/idm-vton).
+    Properly accepts both person image and garment image.
+
+    BUG FIX: Previous implementation used flux-kontext-pro but never passed
+    garment_b64 to the model — the garment was completely ignored.
+    IDM-VTON is the correct model for two-image virtual try-on.
     """
     client = _client()
     person_file  = _b64_to_fileobj(person_b64,  "person.jpg")
+    garment_file = _b64_to_fileobj(garment_b64, "garment.jpg")
 
-    # Map category to natural-language description
+    # Map category to IDM-VTON garment description
     cat_map = {
-        "upper_body": "top / shirt / blouse",
-        "lower_body": "pants / skirt",
-        "dresses":    "dress",
-        "outerwear":  "jacket / coat",
-        "accessories": "accessory / jewellery",
-        "shoes":       "shoes / footwear",
+        "upper_body":   "upper_body",
+        "lower_body":   "lower_body",
+        "dresses":      "dresses",
+        "outerwear":    "upper_body",
+        "accessories":  "upper_body",
+        "shoes":        "lower_body",
     }
-    item_desc = cat_map.get(category, "outfit / garment")
-
-    prompt = (
-        f"Dress this person wearing the {item_desc} shown in the reference garment image. "
-        "Keep the person's face, body shape, skin tone, pose, and background exactly the same. "
-        "Only replace what they are wearing with the new garment, maintaining realistic lighting and fabric texture."
-    )
+    garment_desc_map = {
+        "upper_body":  "a shirt / top / blouse",
+        "lower_body":  "pants / skirt",
+        "dresses":     "a dress",
+        "outerwear":   "a jacket / coat",
+        "accessories": "an accessory",
+        "shoes":       "shoes",
+    }
+    idm_category = cat_map.get(category, "upper_body")
+    garment_desc = garment_desc_map.get(category, "a garment")
 
     output = await _run_with_retry(
         client,
-        "black-forest-labs/flux-kontext-pro",
+        "cuuupid/idm-vton",
         input_data={
-            "image":          person_file,
-            "prompt":         prompt,
-            "output_quality": 90,
+            "human_img":       person_file,
+            "garm_img":        garment_file,
+            "garment_des":     garment_desc,
+            "category":        idm_category,
+            "is_checked":      True,
+            "is_checked_crop": False,
+            "denoise_steps":   30,
+            "seed":            42,
         },
     )
     if isinstance(output, list):

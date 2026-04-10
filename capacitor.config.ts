@@ -19,10 +19,11 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    scheme: 'MuseStyleStudio',
+    scheme: 'App',
     backgroundColor: '#0e0d0c',
     contentInset: 'automatic',
     allowsLinkPreview: false,
+    limitsNavigationsToAppBoundDomains: true,
   },
   android: {
     backgroundColor: '#0e0d0c',

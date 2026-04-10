@@ -2,12 +2,28 @@ node_modules/
 dist/
 .env.local
 .env
+.env.production
 *.local
 .DS_Store
 ios/
 android/
 *.log
+
+# Python
+.venv/
+venv/
+env/
 backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+
+# Firebase
 .firebase/
 .firebaserc
 firebase.json
