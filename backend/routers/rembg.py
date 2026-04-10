@@ -41,11 +41,6 @@ def _load_rembg_model():
     return _rembg_model
 
 
-async def _init_models():
-    """Called at startup to pre-load models."""
-    await asyncio.to_thread(_load_rembg_model)
-
-
 def _process_rembg(img_bytes: bytes) -> bytes:
     """CPU-bound: strip background with rembg, return PNG bytes."""
     try:

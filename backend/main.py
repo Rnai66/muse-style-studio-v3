@@ -17,14 +17,6 @@ app = FastAPI(
     description="AI-powered fashion try-on and styling backend",
 )
 
-
-# BUG FIX: _init_models() was defined in rembg.py but never registered as a startup event.
-# First request would still block for 30-45s loading ONNX models.
-@app.on_event("startup")
-async def startup_event():
-    from routers.rembg import _init_models
-    await _init_models()
-
 # CORS — allow frontend dev server + mobile app + production
 allowed_origins = [
     "http://localhost:5173",
