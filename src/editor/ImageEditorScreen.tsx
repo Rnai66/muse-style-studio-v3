@@ -36,7 +36,7 @@ export default function ImageEditorScreen() {
   const [deviceType, setDeviceType] = useState<'mobile-small' | 'mobile' | 'tablet' | 'desktop'>(getDeviceType());
   
   // Drawer States
-  const [leftDrawer, setLeftDrawer] = useState<'catalog' | 'layers' | 'tools' | null>(null);
+  const [leftDrawer, setLeftDrawer] = useState<'catalog' | 'layers' | null>(null);
   const [rightDrawer, setRightDrawer] = useState<'upload' | 'transform' | 'ai' | null>(null);
 
   const [aiPanel, setAIPanel]     = useState<'tryon' | 'hair' | null>(null);
@@ -165,10 +165,30 @@ export default function ImageEditorScreen() {
             <span className="ie-side-icon">🗂</span>
             <span className="ie-side-label">Layers</span>
           </button>
-          <button className={`ie-side-btn ${leftDrawer === 'tools' ? 'active' : ''}`} 
-                  onClick={() => { setLeftDrawer('tools'); setRightDrawer(null); }}>
-            <span className="ie-side-icon">🔧</span>
-            <span className="ie-side-label">Tools</span>
+
+          <div className="ie-side-divider" />
+
+          <button className="ie-side-btn" onClick={handleCameraPhoto} title="เปิดรูป">
+            <span className="ie-side-icon">📂</span>
+            <span className="ie-side-label">เปิดรูป</span>
+          </button>
+          <input type="file" accept="image/*" ref={fileRef} style={{ display:'none' }} onChange={handleFileChange} />
+
+          <button className={`ie-side-btn ${editor.state.showGrid ? 'active' : ''}`} 
+                  onClick={editor.toggleGrid} title="Grid">
+            <span className="ie-side-icon">⊞</span>
+            <span className="ie-side-label">Grid</span>
+          </button>
+
+          <div className="ie-side-mini-group">
+            <button className="ie-side-mini-btn" onClick={() => editor.setZoom(editor.state.zoom - 0.1)} title="ย่อ">−</button>
+            <span className="ie-side-zoom">{Math.round(editor.state.zoom * 100)}%</span>
+            <button className="ie-side-mini-btn" onClick={() => editor.setZoom(editor.state.zoom + 0.1)} title="ขยาย">+</button>
+          </div>
+
+          <button className="ie-side-btn export" onClick={exportImage} disabled={!editor.state.baseImage} title="บันทึกรูป">
+            <span className="ie-side-icon">↓</span>
+            <span className="ie-side-label">บันทึก</span>
           </button>
         </div>
 
@@ -176,7 +196,7 @@ export default function ImageEditorScreen() {
         <div className={`ie-drawer left ${leftDrawer ? 'open' : ''}`}>
           <div className="ie-panel-header">
             <div className="ie-panel-title">
-              {leftDrawer === 'catalog' ? '🛍 เลือกไอเทม' : leftDrawer === 'layers' ? '🗂 การจัดการเลเยอร์' : '🔧 เครื่องมือ'}
+              {leftDrawer === 'catalog' ? '🛍 เลือกไอเทม' : '🗂 การจัดการเลเยอร์'}
             </div>
             <button className="ie-panel-close" onClick={() => setLeftDrawer(null)}>✕</button>
           </div>
@@ -227,54 +247,6 @@ export default function ImageEditorScreen() {
                     />
                   ))
               }
-            </div>
-          )}
-
-          {/* TOOLS PANEL */}
-          {leftDrawer === 'tools' && (
-            <div className="ie-tools">
-              <div className="tools-grid">
-                <div className="tools-row">
-                  <button className="tools-btn" onClick={handleCameraPhoto} title="เปิดรูป">
-                    <span className="tools-icon">📂</span>
-                    <span className="tools-label">เปิดรูป</span>
-                  </button>
-                  <input type="file" accept="image/*" ref={fileRef} style={{ display:'none' }} onChange={handleFileChange} />
-                </div>
-
-                <div className="tools-row">
-                  <button 
-                    className={`tools-btn ${editor.state.showGrid ? 'active' : ''}`} 
-                    onClick={editor.toggleGrid} 
-                    title="Grid"
-                  >
-                    <span className="tools-icon">⊞</span>
-                    <span className="tools-label">Grid</span>
-                  </button>
-                </div>
-
-                <div className="tools-row">
-                  <button className="tools-btn" onClick={() => editor.setZoom(editor.state.zoom - 0.1)}>
-                    <span className="tools-icon">−</span>
-                  </button>
-                  <div className="tools-zoom-display">{Math.round(editor.state.zoom * 100)}%</div>
-                  <button className="tools-btn" onClick={() => editor.setZoom(editor.state.zoom + 0.1)}>
-                    <span className="tools-icon">+</span>
-                  </button>
-                </div>
-
-                <div className="tools-row">
-                  <button 
-                    className="tools-btn export" 
-                    onClick={exportImage} 
-                    disabled={!editor.state.baseImage} 
-                    title="บันทึกรูป"
-                  >
-                    <span className="tools-icon">↓</span>
-                    <span className="tools-label">บันทึก</span>
-                  </button>
-                </div>
-              </div>
             </div>
           )}
         </div>
