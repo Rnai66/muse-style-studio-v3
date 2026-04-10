@@ -274,9 +274,9 @@
 
   .ie-side-zoom { font-size: 0.55rem; min-width: 28px; }
   
-  /* Make drawers nearly full-width on mobile */
+  /* Adjust drawer widths for mobile */
   .ie-drawer { 
-    width: calc(100vw - 60px); max-width: none; width: calc(100vw - 60px);
+    width: 70vw; max-width: none;
   }
   .ie-drawer.left { left: 60px; }
   .ie-drawer.right { right: 60px; }
@@ -341,7 +341,7 @@
 
   .ie-side-zoom { font-size: 0.5rem; min-width: 24px; }
   
-  .ie-drawer { width: calc(100vw - 50px); }
+  .ie-drawer { width: 70vw; }
   .ie-drawer.left { left: 50px; }
   .ie-drawer.right { right: 50px; }
   
