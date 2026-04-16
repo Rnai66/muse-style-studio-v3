@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
 import type { Layer, EditorState } from '../types';
 import { useCanvasDrag } from '../hooks/useCanvasDrag';
+import { EMOJI } from '@/lib/emojis';
 import './EditorCanvas.css';
 
 interface Props {
@@ -62,7 +63,7 @@ export default function EditorCanvas({ state, onSelectLayer, onTransformLayer }:
           <div className="ec-comparison">
             <img src={aiResultUrl} alt="AI result" className="ec-comparison-img"
               style={{ width: canvasW * zoom, height: canvasH * zoom }} />
-            <div className="ec-comparison-label">AI ✦ ผลลัพธ์</div>
+            <div className="ec-comparison-label">AI {EMOJI.star} ผลลัพธ์</div>
           </div>
         )}
       </div>

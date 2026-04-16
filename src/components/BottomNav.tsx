@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { EMOJI } from '@/lib/emojis';
 import './BottomNav.css';
 
 const tabs = [
-  { to: '/',        icon: '⌂',  label: 'หน้าหลัก' },
-  { to: '/gen-ai',  icon: '✦',  label: 'AI Studio' },
-  { to: '/editor',  icon: '🎨', label: 'Editor' },
-  { to: '/lookbook',icon: '📚', label: 'Lookbook' },
+  { to: '/',        icon: EMOJI.home,     label: 'หน้าหลัก' },
+  { to: '/gen-ai',  icon: EMOJI.studio,   label: 'AI Studio' },
+  { to: '/editor',  icon: EMOJI.editor,   label: 'Editor' },
+  { to: '/lookbook',icon: EMOJI.lookbook, label: 'Lookbook' },
 ];
 
 export default function BottomNav() {

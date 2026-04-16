@@ -1,4 +1,6 @@
 import type { Transform } from '../types';
+import { EMOJI } from '@/lib/emojis';
+import EmojiIcon from '@/components/EmojiIcon';
 import './TransformPanel.css';
 
 interface Props {
@@ -21,7 +23,7 @@ export default function TransformPanel({ transform, onChange }: Props) {
       <div className="tp-title">ปรับแต่ง Layer</div>
 
       {/* ── Body proportions ── */}
-      <div className="tp-section-label">📐 สัดส่วนร่างกาย</div>
+      <div className="tp-section-label"><EmojiIcon symbol={EMOJI.body} className="tp-icon" label="สัดส่วน" /> สัดส่วนร่างกาย</div>
 
       {/* Silhouette preview */}
       <div className="tp-silhouette-wrap">
@@ -56,11 +58,11 @@ export default function TransformPanel({ transform, onChange }: Props) {
         style={{ width: '100%', marginBottom: '.5rem' }}
         onClick={() => onChange({ scaleX: 1, scaleY: 1 })}
       >
-        ↺ รีเซตสัดส่วน
+        {EMOJI.reset} รีเซตสัดส่วน
       </button>
 
       {/* ── General transforms ── */}
-      <div className="tp-section-label" style={{ marginTop: '.5rem' }}>⚙ ทั่วไป</div>
+      <div className="tp-section-label" style={{ marginTop: '.5rem' }}><EmojiIcon symbol={EMOJI.tools} className="tp-icon" label="ทั่วไป" /> ทั่วไป</div>
 
       <SliderRow
         label="ขนาด"
@@ -103,11 +105,11 @@ export default function TransformPanel({ transform, onChange }: Props) {
         <button
           className={`tp-toggle ${t.flipX ? 'active' : ''}`}
           onClick={() => onChange({ flipX: !t.flipX })}
-        >↔ กลับสาย</button>
+        >{EMOJI.swap} กลับสาย</button>
         <button
           className="tp-toggle"
           onClick={() => onChange({ x: 0, y: 0, scale: 1, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1, flipX: false })}
-        >↺ รีเซตทั้งหมด</button>
+        >{EMOJI.reset} รีเซตทั้งหมด</button>
       </div>
     </div>
   );

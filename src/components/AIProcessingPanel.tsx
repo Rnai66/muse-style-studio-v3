@@ -1,4 +1,5 @@
 import type { PipelineState } from '@/hooks/useAIPipeline';
+import { EMOJI } from '@/lib/emojis';
 
 interface Props {
   state: PipelineState;
@@ -35,8 +36,8 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
     <div style={styles.root}>
       {/* Header */}
       <div style={styles.header}>
-        <span style={styles.label}>✦ {label}</span>
-        <button style={styles.closeBtn} onClick={onReset} title="ปิด">✕</button>
+        <span style={styles.label}>{EMOJI.star} {label}</span>
+        <button style={styles.closeBtn} onClick={onReset} title="ปิด">{EMOJI.close}</button>
       </div>
 
       {/* Progress bar */}
@@ -58,7 +59,7 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
       {/* Error */}
       {status === 'error' && error && (
         <div style={styles.errorBox}>
-          <span>⚠ {error}</span>
+          <span>{EMOJI.warning} {error}</span>
         </div>
       )}
 
@@ -72,7 +73,7 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
             </div>
           )}
           <div style={styles.imgWrap}>
-            <span style={styles.imgLabel}>After ✦</span>
+            <span style={styles.imgLabel}>After {EMOJI.star}</span>
             <img src={resultUrl} alt="AI result" style={styles.img} />
           </div>
         </div>
@@ -88,10 +89,10 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
               else downloadImage(resultUrl);
             }}
           >
-            ⬇ ดาวน์โหลด
+            {EMOJI.download} ดาวน์โหลด
           </button>
           <button style={styles.resetBtn} onClick={onReset}>
-            ✕ ล้าง
+            {EMOJI.close} ล้าง
           </button>
         </div>
       )}

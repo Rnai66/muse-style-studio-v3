@@ -268,7 +268,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selHair === h.prompt ? 'active' : ''}`}
                     onClick={() => setSelHair(selHair === h.prompt ? null : h.prompt)}
                   >
-                    <span>{h.icon}</span> {h.label}
+                    <span className="emoji-icon">{h.icon}</span> {h.label}
                   </button>
                 ))}
               </div>
@@ -302,7 +302,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selAccessories.includes(a.value) ? 'active' : ''}`}
                     onClick={() => toggleAccessory(a.value)}
                   >
-                    <span>{a.icon}</span> {a.label}
+                    <span className="emoji-icon">{a.icon}</span> {a.label}
                   </button>
                 ))}
               </div>
@@ -318,7 +318,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selShoes === s.value ? 'active' : ''}`}
                     onClick={() => setSelShoes(selShoes === s.value ? null : s.value)}
                   >
-                    <span>{s.icon}</span> {s.label}
+                    <span className="emoji-icon">{s.icon}</span> {s.label}
                   </button>
                 ))}
               </div>

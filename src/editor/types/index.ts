@@ -1,5 +1,7 @@
 // ── MUSE Image Editor — Core Types ──
 
+import { EMOJI } from '@/lib/emojis';
+
 export type LayerCategory =
   | 'base'         // original person photo
   | 'top'          // เสื้อ
@@ -66,17 +68,17 @@ export const DEFAULT_TRANSFORM: Transform = {
 };
 
 export const CATEGORY_META: Record<LayerCategory, { label: string; icon: string; aiSupported: boolean }> = {
-  base:      { label: 'รูปต้นฉบับ',   icon: '👤', aiSupported: false },
-  top:       { label: 'เสื้อ',         icon: '👚', aiSupported: true  },
-  bottom:    { label: 'กางเกง/กระโปรง', icon: '👖', aiSupported: true  },
-  dress:     { label: 'ชุดเดรส',       icon: '👗', aiSupported: true  },
-  hair:      { label: 'ทรงผม',         icon: '💇', aiSupported: true  },
-  shoes:     { label: 'รองเท้า',       icon: '👠', aiSupported: true  },
-  bag:       { label: 'กระเป๋า',       icon: '👜', aiSupported: false },
-  hat:       { label: 'หมวก',          icon: '🧢', aiSupported: false },
-  glasses:   { label: 'แว่นตา',        icon: '👓', aiSupported: false },
-  jewelry:   { label: 'เครื่องประดับ', icon: '💍', aiSupported: false },
-  outerwear: { label: 'เสื้อคลุม',    icon: '🧥', aiSupported: true  },
+  base:      { label: 'รูปต้นฉบับ',   icon: EMOJI.avatar, aiSupported: false },
+  top:       { label: 'เสื้อ',         icon: EMOJI.top, aiSupported: true  },
+  bottom:    { label: 'กางเกง/กระโปรง', icon: EMOJI.bottom, aiSupported: true  },
+  dress:     { label: 'ชุดเดรส',       icon: EMOJI.dress, aiSupported: true  },
+  hair:      { label: 'ทรงผม',         icon: EMOJI.hair, aiSupported: true  },
+  shoes:     { label: 'รองเท้า',       icon: EMOJI.shoes, aiSupported: true  },
+  bag:       { label: 'กระเป๋า',       icon: EMOJI.bag, aiSupported: false },
+  hat:       { label: 'หมวก',          icon: EMOJI.hat, aiSupported: false },
+  glasses:   { label: 'แว่นตา',        icon: EMOJI.glasses, aiSupported: false },
+  jewelry:   { label: 'เครื่องประดับ', icon: EMOJI.jewelry, aiSupported: false },
+  outerwear: { label: 'เสื้อคลุม',    icon: EMOJI.outerwear, aiSupported: true  },
 };
 
 export const LAYER_ORDER: LayerCategory[] = [

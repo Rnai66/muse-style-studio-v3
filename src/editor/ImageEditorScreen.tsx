@@ -8,6 +8,8 @@ import LayerItem from './components/LayerItem';
 import TransformPanel from './components/TransformPanel';
 import AIProcessingPanel from '@/components/AIProcessingPanel';
 import UploadItemPanel from './components/UploadItemPanel';
+import EmojiIcon from '@/components/EmojiIcon';
+import { EMOJI } from '@/lib/emojis';
 import { CATALOG, CATALOG_BY_CATEGORY } from './utils/catalog';
 import { CATEGORY_META } from './types';
 import type { CatalogItem, LayerCategory } from './types';
@@ -157,26 +159,26 @@ export default function ImageEditorScreen() {
         <div className="ie-sidebar left">
           <button className={`ie-side-btn ${leftDrawer === 'catalog' ? 'active' : ''}`} 
                   onClick={() => { setLeftDrawer('catalog'); setRightDrawer(null); }}>
-            <span className="ie-side-icon">🛍</span>
+            <EmojiIcon symbol={EMOJI.item} className="ie-side-icon" label="ไอเทม" />
             <span className="ie-side-label">ไอเทม</span>
           </button>
           <button className={`ie-side-btn ${leftDrawer === 'layers' ? 'active' : ''}`} 
                   onClick={() => { setLeftDrawer('layers'); setRightDrawer(null); }}>
-            <span className="ie-side-icon">🗂</span>
+            <EmojiIcon symbol={EMOJI.layers} className="ie-side-icon" label="Layers" />
             <span className="ie-side-label">Layers</span>
           </button>
 
           <div className="ie-side-divider" />
 
           <button className="ie-side-btn" onClick={handleCameraPhoto} title="เปิดรูป">
-            <span className="ie-side-icon">📂</span>
+            <EmojiIcon symbol={EMOJI.gallery} className="ie-side-icon" label="เปิดรูป" />
             <span className="ie-side-label">เปิดรูป</span>
           </button>
           <input type="file" accept="image/*" ref={fileRef} style={{ display:'none' }} onChange={handleFileChange} />
 
           <button className={`ie-side-btn ${editor.state.showGrid ? 'active' : ''}`} 
                   onClick={editor.toggleGrid} title="Grid">
-            <span className="ie-side-icon">⊞</span>
+            <EmojiIcon symbol={EMOJI.grid} className="ie-side-icon" label="Grid" />
             <span className="ie-side-label">Grid</span>
           </button>
 
@@ -187,7 +189,7 @@ export default function ImageEditorScreen() {
           </div>
 
           <button className="ie-side-btn export" onClick={exportImage} disabled={!editor.state.baseImage} title="บันทึกรูป">
-            <span className="ie-side-icon">↓</span>
+            <EmojiIcon symbol={EMOJI.download} className="ie-side-icon" label="บันทึก" />
             <span className="ie-side-label">บันทึก</span>
           </button>
         </div>
@@ -196,9 +198,9 @@ export default function ImageEditorScreen() {
         <div className={`ie-drawer left ${leftDrawer ? 'open' : ''}`}>
           <div className="ie-panel-header">
             <div className="ie-panel-title">
-              {leftDrawer === 'catalog' ? '🛍 เลือกไอเทม' : '🗂 การจัดการเลเยอร์'}
+              {leftDrawer === 'catalog' ? `${EMOJI.item} เลือกไอเทม` : `${EMOJI.layers} การจัดการเลเยอร์`}
             </div>
-            <button className="ie-panel-close" onClick={() => setLeftDrawer(null)}>✕</button>
+            <button className="ie-panel-close" onClick={() => setLeftDrawer(null)}>{EMOJI.close}</button>
           </div>
 
           {/* CATALOG PANEL */}
@@ -207,7 +209,7 @@ export default function ImageEditorScreen() {
               <div className="cat-scroll">
                 {SIDE_CATS.map(c => (
                   <button key={c} className={`cat-chip ${catFilter === c ? 'active' : ''}`} onClick={() => setCatFilter(c)}>
-                    {CATEGORY_META[c].icon} {CATEGORY_META[c].label}
+                    <span className="emoji-icon">{CATEGORY_META[c].icon}</span> {CATEGORY_META[c].label}
                   </button>
                 ))}
               </div>
@@ -264,11 +266,11 @@ export default function ImageEditorScreen() {
         <div className={`ie-drawer right ${rightDrawer ? 'open' : ''}`}>
            <div className="ie-panel-header">
             <div className="ie-panel-title">{
-               rightDrawer === 'upload' ? '📎 อัปโหลดรูปภาพ' : 
-               rightDrawer === 'transform' ? '⚙ ปรับแต่งขนาด/มุม' : 
-               '✨ AI Quick Actions'
+               rightDrawer === 'upload' ? `${EMOJI.upload} อัปโหลดรูปภาพ` : 
+               rightDrawer === 'transform' ? `${EMOJI.tools} ปรับแต่งขนาด/มุม` : 
+               `${EMOJI.spark} AI Quick Actions`
             }</div>
-            <button className="ie-panel-close" onClick={() => setRightDrawer(null)}>✕</button>
+            <button className="ie-panel-close" onClick={() => setRightDrawer(null)}>{EMOJI.close}</button>
           </div>
 
           {/* UPLOAD PANEL */}
@@ -300,7 +302,7 @@ export default function ImageEditorScreen() {
                     const layer = editor.state.layers.find(l => l.category === cat as LayerCategory);
                     return layer ? (
                       <button key={cat} className="qai-btn gold" onClick={() => runAIOnLayer(layer.id)} disabled={tryon.state.status === 'running'}>
-                        <span>{CATEGORY_META[cat as LayerCategory].icon}</span> <span>Try-On {layer.name}</span>
+                        <span className="emoji-icon">{CATEGORY_META[cat as LayerCategory].icon}</span> <span>Try-On {layer.name}</span>
                       </button>
                     ) : null;
                   })}
@@ -308,7 +310,7 @@ export default function ImageEditorScreen() {
                   <div className="qai-section-label">Hair AI (เปลี่ยนทรงผม AI)</div>
                   {editor.state.layers.filter(l => l.category === 'hair').map(layer => (
                     <button key={layer.id} className="qai-btn" onClick={() => runAIOnLayer(layer.id)} disabled={hair.state.status === 'running'}>
-                      <span>💇</span> <span>{layer.name}</span>
+                      <EmojiIcon symbol={EMOJI.hair} className="emoji-icon" label="ทรงผม" /> <span>{layer.name}</span>
                     </button>
                   ))}
 
@@ -328,7 +330,7 @@ export default function ImageEditorScreen() {
                     <>
                       <div className="qai-divider" />
                       <button className={`qai-btn ${editor.state.showComparison ? 'gold' : ''}`} onClick={editor.toggleComparison}>
-                        <span>⇆</span> <span>{editor.state.showComparison ? 'ซ่อนผล AI' : 'แสดงผล AI ตันฉบับ'}</span>
+                        <EmojiIcon symbol={EMOJI.compare} className="emoji-icon" label="เปรียบเทียบ" /> <span>{editor.state.showComparison ? 'ซ่อนผล AI' : 'แสดงผล AI ตันฉบับ'}</span>
                       </button>
                     </>
                   )}
@@ -343,17 +345,17 @@ export default function ImageEditorScreen() {
         <div className="ie-sidebar right">
           <button className={`ie-side-btn ${rightDrawer === 'ai' ? 'active' : ''}`} 
                   onClick={() => { setRightDrawer('ai'); setLeftDrawer(null); }}>
-            <span className="ie-side-icon">✨</span>
+            <EmojiIcon symbol={EMOJI.studio} className="ie-side-icon" label="AI" />
             <span className="ie-side-label">AI</span>
           </button>
           <button className={`ie-side-btn ${rightDrawer === 'upload' ? 'active' : ''}`} 
                   onClick={() => { setRightDrawer('upload'); setLeftDrawer(null); }}>
-            <span className="ie-side-icon">📎</span>
+            <EmojiIcon symbol={EMOJI.upload} className="ie-side-icon" label="อัปโหลด" />
             <span className="ie-side-label">อัปโหลด</span>
           </button>
           <button className={`ie-side-btn ${rightDrawer === 'transform' ? 'active' : ''}`} 
                   onClick={() => { setRightDrawer('transform'); setLeftDrawer(null); }}>
-            <span className="ie-side-icon">⚙</span>
+            <EmojiIcon symbol={EMOJI.tools} className="ie-side-icon" label="ปรับแต่ง" />
             <span className="ie-side-label">ปรับแต่ง</span>
           </button>
         </div>

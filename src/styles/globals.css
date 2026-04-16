@@ -50,8 +50,8 @@ button, a, [role="button"] {
   --safe-top:    env(safe-area-inset-top,    0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --nav-h: 64px;
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-sans:  'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Noto Serif Thai', Georgia, serif;
+  --font-sans:  'DM Sans', 'Sarabun', 'Kanit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 /* ── BASE ── */
@@ -65,6 +65,34 @@ html, body, #root {
   overflow-x: hidden;
   touch-action: manipulation;
 }
+
+.icon-emoji,
+.emoji-icon,
+.nav-icon,
+.cat-chip,
+.ie-panel-title,
+.occ-icon,
+.feat-icon,
+.lb-empty-icon,
+.photo-empty-icon,
+.tab-icon,
+.item-add-icon,
+.tip-icon,
+.ie-side-icon,
+.layer-thumb-emoji,
+.uip-drop-icon,
+.uip-cat-icon,
+.cr-icon,
+.mk-icon,
+.layer-cat,
+[class$="-icon"],
+[class*="-icon-"] {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+  line-height: 1;
+  font-feature-settings: 'liga' 1;
+  text-rendering: optimizeLegibility;
+}
+
 
 .app-root {
   min-height: 100dvh;
@@ -104,6 +132,27 @@ html, body, #root {
 .text-gold { color: var(--gold); }
 .text-2   { color: var(--text2); }
 .text-3   { color: var(--text3); }
+
+.icon-emoji,
+.nav-icon,
+.uip-drop-icon,
+.lb-empty-icon,
+.tab-icon,
+.photo-empty-icon,
+.occ-icon,
+.feat-icon,
+.item-add-icon,
+.tip-icon,
+.ie-side-icon,
+.layer-thumb-emoji,
+.uip-cat-icon,
+.cr-icon,
+.mk-icon {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+  line-height: 1;
+  font-feature-settings: 'liga' 1;
+  text-rendering: optimizeLegibility;
+}
 
 /* ── COMPONENTS ── */
 .btn-primary {
