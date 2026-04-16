@@ -10,9 +10,13 @@ import base64
 import io
 import asyncio
 import logging
+import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from PIL import Image
+
+# Disable GPU detection on Render free tier (no GPU, saves memory)
+os.environ['ONNXRUNTIME_EXECUTION_PROVIDERS'] = 'CPUExecutionProvider'
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -33,10 +37,12 @@ def _load_rembg_model():
         try:
             from rembg import new_session, remove
             # Pre-download session to avoid timeout on first request
-            _rembg_model = new_session(model_name="u2net")
+            # Using u2net_human_seg for faster processing on low-memory systems
+            logger.info("Creating ONNX session with CPU-only execution...")
+            _rembg_model = new_session(model_name="u2net_human_seg", providers=["CPUExecutionProvider"])
             logger.info("✓ rembg models loaded successfully")
         except Exception as e:
-            logger.error(f"Failed to load rembg: {e}")
+            logger.error(f"Failed to load rembg: {e}", exc_info=True)
             _rembg_model = False
     return _rembg_model
 
@@ -60,16 +66,18 @@ def _process_rembg(img_bytes: bytes) -> bytes:
         logger.info(f"Input image size: {original_size}")
         
         # Aggressive resize for slow Render tier to speed up processing
-        # This is the most important optimization for free tier
-        max_dimension = 768  # Reduced from 1024 for faster processing on Render
+        # Further reduced to 640px max to prevent OOM on 512MB instances
+        max_dimension = 640  # Reduced from 768 for memory safety
         if max(original_size) > max_dimension:
             scale = max_dimension / max(original_size)
             new_size = (int(original_size[0] * scale), int(original_size[1] * scale))
             inp = inp.resize(new_size, Image.Resampling.LANCZOS)
-            logger.info(f"Resized to {new_size} for faster processing")
+            logger.info(f"Resized to {new_size} for faster processing (memory safety)")
         
         # Remove background
+        logger.info("Starting ONNX model inference...")
         out = remove(inp, session=session)
+        logger.info(f"✓ ONNX model inference completed in {time.time() - start_time:.1f}s")
         
         # Upscale back if we downscaled
         if max(original_size) > max_dimension:
