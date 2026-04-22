@@ -37,8 +37,20 @@ export function useRemoveBg() {
           let msg = `RNAI Error (${res.status})`;
           try {
             const data = await res.json();
-            if (data.error) msg = data.error;
-            else if (data.message) msg = data.message;
+            // Handle FastAPI's nested detail object
+            const detail = data.detail;
+            if (typeof detail === 'string') {
+              msg = detail;
+            } else if (detail && detail.message) {
+              msg = detail.message;
+              if (detail.diagnostics && Array.isArray(detail.diagnostics)) {
+                console.warn('AI Diagnostics:', detail.diagnostics);
+              }
+            } else if (data.error) {
+              msg = data.error;
+            } else if (data.message) {
+              msg = data.message;
+            }
           } catch {
             msg = await res.text().catch(() => msg);
           }
