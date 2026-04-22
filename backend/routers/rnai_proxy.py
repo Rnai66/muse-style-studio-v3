@@ -14,8 +14,14 @@ router = APIRouter()
 IS_RENDER = os.getenv("RENDER") == "true"
 
 RNAI_BASE_URL = "https://rnai-io.vercel.app/api/v1"
-RNAI_API_KEY = os.getenv("VITE_RNAI_API_KEY")
-HF_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
+RNAI_API_KEY = (os.getenv("VITE_RNAI_API_KEY") or "").strip()
+HF_TOKEN = (os.getenv("HUGGINGFACE_API_TOKEN") or "").strip()
+
+# Cleanup common copy-paste errors (like VITE_RNAI_API_KEY= being inside the value)
+if RNAI_API_KEY.startswith("VITE_RNAI_API_KEY="):
+    RNAI_API_KEY = RNAI_API_KEY.replace("VITE_RNAI_API_KEY=", "").strip()
+if HF_TOKEN.startswith("HUGGINGFACE_API_TOKEN="):
+    HF_TOKEN = HF_TOKEN.replace("HUGGINGFACE_API_TOKEN=", "").strip()
 
 HF_GEN_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell"
 HF_REMBG_URL = "https://api-inference.huggingface.co/models/briaai/RMBG-1.4"
