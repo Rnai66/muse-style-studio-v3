@@ -136,6 +136,7 @@ async def proxy_remove_bg(req: ProxyRequest):
             status_code=503, 
             detail={
                 "message": "AI services are currently busy at the source. Please check diagnostics.",
+                "version": "v1.0.2",
                 "diagnostics": errors
             }
         )
