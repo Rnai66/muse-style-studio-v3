@@ -2,8 +2,10 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraSource } from '@capacitor/camera';
 import { useCamera } from '@/hooks/useCamera';
-import { useStylePipeline, type StyleInput } from '@/hooks/useAIPipeline';
+import { useRnai } from '@/hooks/useRnaiPipeline';
 import AIProcessingPanel from '@/components/AIProcessingPanel';
+import AppIcon, { type AppIconName } from '@/components/AppIcon';
+import { optimizeImageDataUrl } from '@/lib/image';
 import './GenAIStudioScreen.css';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -13,7 +15,6 @@ type ActiveTab = 'clothes' | 'details';
 interface ClothingItem {
   id: string;
   dataUrl: string;
-  base64: string;
   category: string;
 }
 
@@ -27,12 +28,12 @@ const CLOTHING_CATEGORIES = [
 ];
 
 const HAIRSTYLES = [
-  { label: 'บ็อบสั้น',  prompt: 'bob cut',          icon: '✂️' },
-  { label: 'พิกซี่',    prompt: 'pixie cut',         icon: '💇' },
-  { label: 'ลอนยาว',   prompt: 'long wavy hair',    icon: '🌊' },
-  { label: 'ตรงยาว',   prompt: 'straight long hair', icon: '📏' },
-  { label: 'เลเยอร์',  prompt: 'layered shag cut',  icon: '✨' },
-  { label: 'เปีย',     prompt: 'braids',             icon: '🎀' },
+  { label: 'บ็อบสั้น',  prompt: 'bob cut',           icon: 'scissors' as AppIconName },
+  { label: 'พิกซี่',    prompt: 'pixie cut',         icon: 'hair' as AppIconName },
+  { label: 'ลอนยาว',    prompt: 'long wavy hair',    icon: 'wave' as AppIconName },
+  { label: 'ตรงยาว',    prompt: 'straight long hair', icon: 'ruler' as AppIconName },
+  { label: 'เลเยอร์',   prompt: 'layered shag cut',  icon: 'spark' as AppIconName },
+  { label: 'เปีย',      prompt: 'braids',            icon: 'braid' as AppIconName },
 ];
 
 const HAIR_COLORS = [
@@ -45,30 +46,30 @@ const HAIR_COLORS = [
 ];
 
 const ACCESSORIES = [
-  { label: 'สร้อย',         value: 'necklace',       icon: '📿' },
-  { label: 'ต่างหู',       value: 'earrings',        icon: '💎' },
-  { label: 'แว่นตา',      value: 'sunglasses',      icon: '🕶️' },
-  { label: 'กำไล',         value: 'bracelet',        icon: '⌚' },
-  { label: 'หมวก',         value: 'hat',             icon: '🧢' },
-  { label: 'กระเป๋า',     value: 'handbag',         icon: '👜' },
+  { label: 'สร้อย',      value: 'necklace',   icon: 'necklace' as AppIconName },
+  { label: 'ต่างหู',      value: 'earrings',   icon: 'earrings' as AppIconName },
+  { label: 'แว่นตา',      value: 'sunglasses', icon: 'glasses' as AppIconName },
+  { label: 'กำไล',       value: 'bracelet',   icon: 'bracelet' as AppIconName },
+  { label: 'หมวก',        value: 'hat',        icon: 'hat' as AppIconName },
+  { label: 'กระเป๋า',    value: 'handbag',    icon: 'bag' as AppIconName },
 ];
 
 const SHOES = [
-  { label: 'ส้นสูง',       value: 'high heels',     icon: '👠' },
-  { label: 'แฟลต',         value: 'flat shoes',     icon: '🥿' },
-  { label: 'สนีกเกอร์',   value: 'sneakers',        icon: '👟' },
-  { label: 'บูท',          value: 'boots',           icon: '👢' },
-  { label: 'แตะ',          value: 'sandals',         icon: '🩴' },
-  { label: 'ล็อฟเฟอร์',   value: 'loafers',         icon: '🥾' },
+  { label: 'ส้นสูง',      value: 'high heels', icon: 'heels' as AppIconName },
+  { label: 'แฟลต',        value: 'flat shoes', icon: 'flats' as AppIconName },
+  { label: 'สนีกเกอร์',   value: 'sneakers',   icon: 'sneaker' as AppIconName },
+  { label: 'บูท',         value: 'boots',      icon: 'boots' as AppIconName },
+  { label: 'แตะ',         value: 'sandals',    icon: 'sandals' as AppIconName },
+  { label: 'ล็อฟเฟอร์',  value: 'loafers',    icon: 'loafers' as AppIconName },
 ];
 
 const MAKEUPS = [
-  { label: 'Natural',    key: 'natural',    icon: '🌿' },
-  { label: 'Office',     key: 'office',     icon: '💼' },
-  { label: 'Glam',       key: 'glam',       icon: '✨' },
-  { label: 'Smoky Eye',  key: 'smoky',      icon: '🌙' },
-  { label: 'Bold Lip',   key: 'bold_lip',   icon: '💄' },
-  { label: 'K-Beauty',   key: 'korean',     icon: '🌸' },
+  { label: 'Natural',    key: 'natural',   icon: 'leaf' as AppIconName },
+  { label: 'Office',     key: 'office',    icon: 'briefcase' as AppIconName },
+  { label: 'Glam',       key: 'glam',      icon: 'spark' as AppIconName },
+  { label: 'Smoky Eye',  key: 'smoky',     icon: 'moon' as AppIconName },
+  { label: 'Bold Lip',   key: 'bold_lip',  icon: 'lipstick' as AppIconName },
+  { label: 'K-Beauty',   key: 'korean',    icon: 'flower' as AppIconName },
 ];
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -91,7 +92,7 @@ export default function GenAIStudioScreen() {
   const [customText, setCustomText]     = useState('');
 
   // Pipeline
-  const pipeline = useStylePipeline();
+  const rnai = useRnai();
 
   // ── Handlers ──
 
@@ -99,13 +100,17 @@ export default function GenAIStudioScreen() {
     const f = e.target.files?.[0];
     if (!f || items.length >= 6) return;
     const r = new FileReader();
-    r.onload = ev => {
-      const dataUrl = ev.target?.result as string;
-      const base64  = dataUrl.split(',')[1];
+    r.onload = async ev => {
+      const rawDataUrl = ev.target?.result as string;
+      const dataUrl = await optimizeImageDataUrl(rawDataUrl, {
+        maxWidth: 1024,
+        maxHeight: 1024,
+        quality: 0.76,
+        mimeType: 'image/jpeg',
+      });
       setItems(prev => [...prev, {
         id: `item-${Date.now()}`,
         dataUrl,
-        base64,
         category: 'upper_body',
       }]);
     };
@@ -132,17 +137,25 @@ export default function GenAIStudioScreen() {
 
   const handleGenerate = () => {
     if (!image) return;
-    const input: StyleInput = {
-      personDataUrl: image.dataUrl,
-      items,
-      hairstyle:    selHair ?? undefined,
-      hairColor:    selHairColor ?? undefined,
-      accessories:  selAccessories.length > 0 ? selAccessories : undefined,
-      shoes:        selShoes ?? undefined,
-      makeup:       selMakeup ?? undefined,
-      customText:   customText || undefined,
-    };
-    pipeline.generate(input);
+    
+    // Construct a rich prompt for RNAI based on selections
+    const parts = [];
+    if (items.length > 0) {
+      const itemDesc = items.map(it => it.category.replace('_', ' ')).join(', ');
+      parts.push(`wearing ${itemDesc}`);
+    }
+    if (selHair) parts.push(`with ${selHair} hairstyle`);
+    if (selHairColor) parts.push(`in ${selHairColor} color`);
+    if (selAccessories.length > 0) parts.push(`accessorized with ${selAccessories.join(', ')}`);
+    if (selShoes) parts.push(`wearing ${selShoes}`);
+    if (selMakeup) parts.push(`with ${selMakeup} makeup`);
+    if (customText) parts.push(customText);
+
+    const prompt = parts.length > 0 
+      ? `A professional fashion photo of this person, ${parts.join(', ')}, high quality, highly detailed, photorealistic.`
+      : `A professional fashion photo of this person, high quality, photorealistic.`;
+
+    rnai.edit(image.dataUrl, prompt);
   };
 
   return (
@@ -152,9 +165,9 @@ export default function GenAIStudioScreen() {
       <header className="gen-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 className="gen-title serif">Generative <em>AI Studio</em></h1>
-          <span className="gen-badge">Powered by Replicate</span>
+          <span className="gen-badge">Powered by RNAI Agent</span>
         </div>
-        <button className="home-notif" style={{background:'transparent', border:'none', color:'var(--text1)', fontSize:'1.2rem', padding: 0}} onClick={() => navigate('/profile')}>◎</button>
+        <button className="home-notif" style={{background:'transparent', border:'none', color:'var(--text1)', fontSize:'1.2rem', padding: 0}} onClick={() => navigate('/profile')} aria-label="โปรไฟล์"><AppIcon name="profile" label="โปรไฟล์" /></button>
       </header>
 
       <div className="gen-body">
@@ -176,7 +189,7 @@ export default function GenAIStudioScreen() {
             </div>
           ) : (
             <div className="photo-empty" onClick={() => takePhoto(CameraSource.Photos)}>
-              <span className="photo-empty-icon">📷</span>
+              <AppIcon name="camera" className="photo-empty-icon" label="อัปโหลดรูป" />
               <span className="photo-empty-text">แตะเพื่ออัปโหลดรูปตัวเอง</span>
               <span className="photo-empty-hint">รองรับ JPG, PNG, HEIC</span>
             </div>
@@ -189,7 +202,7 @@ export default function GenAIStudioScreen() {
             className={`tab-btn ${activeTab === 'clothes' ? 'active' : ''}`}
             onClick={() => setActiveTab('clothes')}
           >
-            <span className="tab-icon">👗</span>
+            <AppIcon name="clothes" className="tab-icon" label="เสื้อผ้า" />
             <span>เสื้อผ้า / ไอเทม</span>
             {items.length > 0 && <span className="tab-badge">{items.length}</span>}
           </button>
@@ -197,9 +210,9 @@ export default function GenAIStudioScreen() {
             className={`tab-btn ${activeTab === 'details' ? 'active' : ''}`}
             onClick={() => setActiveTab('details')}
           >
-            <span className="tab-icon">✦</span>
+            <AppIcon name="details" className="tab-icon" label="รายละเอียด" />
             <span>รายละเอียด</span>
-            {hasAnyDetail && <span className="tab-badge tab-badge--gold">✓</span>}
+            {hasAnyDetail && <span className="tab-badge tab-badge--gold"><AppIcon name="check" label="เลือกแล้ว" /></span>}
           </button>
         </div>
 
@@ -214,8 +227,8 @@ export default function GenAIStudioScreen() {
             <div className="item-grid">
               {items.map(item => (
                 <div key={item.id} className="item-card">
-                  <button className="item-delete" onClick={() => removeItem(item.id)}>✕</button>
-                  <img src={item.dataUrl} alt="item" className="item-thumb" />
+                  <button className="item-delete" onClick={() => removeItem(item.id)}><AppIcon name="close" label="ลบ" /></button>
+                  <img src={item.dataUrl} alt="item" className="item-thumb" loading="lazy" />
                   <select
                     className="item-select"
                     value={item.category}
@@ -260,7 +273,7 @@ export default function GenAIStudioScreen() {
 
             {/* ทรงผม */}
             <div className="detail-section">
-              <div className="detail-sec-label">💇 ทรงผม</div>
+              <div className="detail-sec-label"><AppIcon name="hair" className="detail-sec-icon" label="ทรงผม" /> ทรงผม</div>
               <div className="option-pills">
                 {HAIRSTYLES.map(h => (
                   <button
@@ -268,7 +281,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selHair === h.prompt ? 'active' : ''}`}
                     onClick={() => setSelHair(selHair === h.prompt ? null : h.prompt)}
                   >
-                    <span className="emoji-icon">{h.icon}</span> {h.label}
+                    <AppIcon name={h.icon} className="detail-pill-icon" label={h.label} /> {h.label}
                   </button>
                 ))}
               </div>
@@ -276,7 +289,7 @@ export default function GenAIStudioScreen() {
 
             {/* สีผม */}
             <div className="detail-section">
-              <div className="detail-sec-label">🎨 สีผม</div>
+              <div className="detail-sec-label"><AppIcon name="palette" className="detail-sec-icon" label="สีผม" /> สีผม</div>
               <div className="color-chips">
                 {HAIR_COLORS.map(c => (
                   <button
@@ -294,7 +307,7 @@ export default function GenAIStudioScreen() {
 
             {/* เครื่องประดับ */}
             <div className="detail-section">
-              <div className="detail-sec-label">💍 เครื่องประดับ</div>
+              <div className="detail-sec-label"><AppIcon name="jewelry" className="detail-sec-icon" label="เครื่องประดับ" /> เครื่องประดับ</div>
               <div className="option-pills">
                 {ACCESSORIES.map(a => (
                   <button
@@ -302,7 +315,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selAccessories.includes(a.value) ? 'active' : ''}`}
                     onClick={() => toggleAccessory(a.value)}
                   >
-                    <span className="emoji-icon">{a.icon}</span> {a.label}
+                    <AppIcon name={a.icon} className="detail-pill-icon" label={a.label} /> {a.label}
                   </button>
                 ))}
               </div>
@@ -310,7 +323,7 @@ export default function GenAIStudioScreen() {
 
             {/* รองเท้า */}
             <div className="detail-section">
-              <div className="detail-sec-label">👠 รองเท้า</div>
+              <div className="detail-sec-label"><AppIcon name="shoes" className="detail-sec-icon" label="รองเท้า" /> รองเท้า</div>
               <div className="option-pills">
                 {SHOES.map(s => (
                   <button
@@ -318,7 +331,7 @@ export default function GenAIStudioScreen() {
                     className={`pill ${selShoes === s.value ? 'active' : ''}`}
                     onClick={() => setSelShoes(selShoes === s.value ? null : s.value)}
                   >
-                    <span className="emoji-icon">{s.icon}</span> {s.label}
+                    <AppIcon name={s.icon} className="detail-pill-icon" label={s.label} /> {s.label}
                   </button>
                 ))}
               </div>
@@ -334,7 +347,7 @@ export default function GenAIStudioScreen() {
                     className={`makeup-chip ${selMakeup === m.key ? 'active' : ''}`}
                     onClick={() => setSelMakeup(selMakeup === m.key ? null : m.key)}
                   >
-                    <span className="mk-icon">{m.icon}</span>
+                    <AppIcon name={m.icon} className="mk-icon" label={m.label} />
                     <span className="mk-label">{m.label}</span>
                   </button>
                 ))}
@@ -343,7 +356,7 @@ export default function GenAIStudioScreen() {
 
             {/* Custom text */}
             <div className="detail-section">
-              <div className="detail-sec-label">✏️ เพิ่มเติม (พิมพ์เองได้)</div>
+              <div className="detail-sec-label"><AppIcon name="text" className="detail-sec-icon" label="เพิ่มเติม" /> เพิ่มเติม (พิมพ์เองได้)</div>
               <textarea
                 className="custom-textarea"
                 placeholder="เช่น: ใส่สร้อยมุกยาว, สไตล์ minimalist, ธีมสี beige..."
@@ -360,15 +373,15 @@ export default function GenAIStudioScreen() {
           id="gen-ai-studio-generate-btn"
           className="generate-btn"
           onClick={handleGenerate}
-          disabled={!canGenerate || pipeline.state.status === 'running'}
+          disabled={!canGenerate || rnai.state.status === 'running'}
         >
-          {pipeline.state.status === 'running' ? (
+          {rnai.state.status === 'running' ? (
             <>
               <span className="gen-spinner" />
-              กำลังประมวลผล... ({pipeline.state.progress}%)
+              กำลังประมวลผลด้วย RNAI...
             </>
           ) : (
-            '✦ สร้างภาพด้วย AI'
+            'สร้างภาพด้วย AI (RNAI)'
           )}
         </button>
 
@@ -378,10 +391,16 @@ export default function GenAIStudioScreen() {
 
         {/* ── RESULT PANEL ── */}
         <AIProcessingPanel
-          state={pipeline.state}
+          state={{
+            status: rnai.state.status,
+            progress: rnai.state.status === 'running' ? 50 : (rnai.state.status === 'done' ? 100 : 0),
+            message: rnai.state.status === 'running' ? 'RNAI กำลังสร้างภาพ...' : rnai.state.error || '',
+            resultUrl: rnai.state.resultUrl,
+            error: rnai.state.error
+          }}
           beforeUrl={image?.dataUrl}
-          onReset={pipeline.reset}
-          label="Muse AI · Style Generation"
+          onReset={rnai.reset}
+          label="RNAI Agent · Fashion Generation"
         />
 
       </div>

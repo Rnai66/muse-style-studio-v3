@@ -220,7 +220,7 @@
   border-color: rgba(192, 132, 252, .7);
   background: rgba(192, 132, 252, .12);
 }
-.uip-cat-icon { font-size: .95rem; }
+.uip-cat-icon { font-size: .95rem; color: var(--gold2); }
 .uip-cat-label { font-size: .68rem; color: rgba(255,255,255,.7); }
 .uip-cat-btn.active .uip-cat-label { color: #c084fc; }
 
@@ -290,4 +290,28 @@
 @keyframes uip-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }
+}
+
+@media (max-width: 767px) {
+  .uip-rembg-btn,
+  .uip-restore-btn,
+  .uip-change-btn,
+  .uip-add-btn,
+  .uip-reset-btn,
+  .uip-cat-btn {
+    transition: none;
+  }
+
+  .uip-rembg-btn:hover:not(:disabled),
+  .uip-add-btn:hover,
+  .uip-reset-btn:hover,
+  .uip-cat-btn:hover {
+    transform: none;
+    box-shadow: none;
+    background: unset;
+  }
+
+  .uip-processing-hint {
+    animation: none;
+  }
 }

@@ -1,19 +1,20 @@
 import { useNavigate } from 'react-router-dom';
+import AppIcon, { type AppIconName } from '@/components/AppIcon';
 import './HomeScreen.css';
 
 const OCCASIONS = [
-  { icon: '💍', label: 'งานแต่งงาน', sub: 'Formal · Semi-formal', path: '/occasions?q=wedding' },
-  { icon: '💼', label: 'ทำงาน / Office', sub: 'Business · Smart Casual', path: '/occasions?q=office' },
-  { icon: '🌙', label: 'กลางคืน', sub: 'Cocktail · Party', path: '/occasions?q=night' },
-  { icon: '☕', label: 'นัดเดท', sub: 'Romantic · Casual', path: '/occasions?q=date' },
-  { icon: '🌿', label: 'พักผ่อน', sub: 'Casual · Resort', path: '/occasions?q=casual' },
+  { icon: 'jewelry' as AppIconName, label: 'งานแต่งงาน', sub: 'Formal · Semi-formal', path: '/occasions?q=wedding' },
+  { icon: 'briefcase' as AppIconName, label: 'ทำงาน / Office', sub: 'Business · Smart Casual', path: '/occasions?q=office' },
+  { icon: 'moon' as AppIconName, label: 'กลางคืน', sub: 'Cocktail · Party', path: '/occasions?q=night' },
+  { icon: 'coffee' as AppIconName, label: 'นัดเดท', sub: 'Romantic · Casual', path: '/occasions?q=date' },
+  { icon: 'leaf' as AppIconName, label: 'พักผ่อน', sub: 'Casual · Resort', path: '/occasions?q=casual' },
 ];
 
 const FEATURED = [
-  { icon: '👗', name: 'Wrap Dress ลินิน', price: '฿1,290', tag: 'HOT' },
-  { icon: '👒', name: 'Oversized Blazer', price: '฿2,150', tag: '' },
-  { icon: '💍', name: 'Statement Earrings', price: '฿590', tag: 'NEW' },
-  { icon: '👜', name: 'Mini Bag หนัง', price: '฿3,400', tag: '' },
+  { icon: 'dress' as AppIconName, name: 'Wrap Dress ลินิน', price: '฿1,290', tag: 'HOT' },
+  { icon: 'outerwear' as AppIconName, name: 'Oversized Blazer', price: '฿2,150', tag: '' },
+  { icon: 'earrings' as AppIconName, name: 'Statement Earrings', price: '฿590', tag: 'NEW' },
+  { icon: 'bag' as AppIconName, name: 'Mini Bag หนัง', price: '฿3,400', tag: '' },
 ];
 
 export default function HomeScreen() {
@@ -23,7 +24,9 @@ export default function HomeScreen() {
       {/* HEADER */}
       <header className="home-header">
         <div className="home-logo">MUSE<em>.</em></div>
-        <button className="home-notif" onClick={() => nav('/profile')}>◎</button>
+        <button className="home-notif" onClick={() => nav('/profile')} aria-label="โปรไฟล์">
+          <AppIcon name="profile" className="home-notif-icon" label="โปรไฟล์" />
+        </button>
       </header>
 
       {/* HERO */}
@@ -32,7 +35,7 @@ export default function HomeScreen() {
         <h1 className="hero-h1">ค้นพบ<br/><em>สไตล์ที่ใช่</em><br/>สำหรับคุณ</h1>
         <p className="hero-sub">อัปโหลดรูปตัวเองเพื่อลองชุด ทรงผม และสไตล์ต่างๆ ปรึกษา AI Stylist ส่วนตัว</p>
         <div className="hero-actions">
-          <button className="btn-primary" onClick={() => nav('/studio')}>เริ่มออกแบบ ✦</button>
+          <button className="btn-primary" onClick={() => nav('/studio')}><AppIcon name="spark" /> เริ่มออกแบบ</button>
           <button className="btn-outline" onClick={() => nav('/courses')}>ดูคอร์ส</button>
         </div>
       </div>
@@ -55,7 +58,7 @@ export default function HomeScreen() {
         <div className="occasions-scroll">
           {OCCASIONS.map(o => (
             <div key={o.label} className="occ-chip" onClick={() => nav(o.path)}>
-              <span className="occ-icon">{o.icon}</span>
+              <AppIcon name={o.icon} className="occ-icon" label={o.label} />
               <span className="occ-name">{o.label}</span>
               <span className="occ-sub">{o.sub}</span>
             </div>
@@ -73,7 +76,7 @@ export default function HomeScreen() {
           {FEATURED.map(f => (
             <div key={f.name} className="feat-card">
               {f.tag && <span className="feat-tag">{f.tag}</span>}
-              <div className="feat-icon">{f.icon}</div>
+              <div className="feat-icon"><AppIcon name={f.icon} label={f.name} /></div>
               <div className="feat-name">{f.name}</div>
               <div className="feat-price">{f.price}</div>
             </div>

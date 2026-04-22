@@ -1,31 +1,32 @@
 /**
  * useRemoveBg
- * Calls the backend /api/rembg/ endpoint which uses the local rembg library.
+ * Calls the RNAI API /api/v1/remove-background endpoint.
  * Returns a transparent PNG as a base64 data URL.
- * 
- * Note: First run may take 30-45s to load ONNX models, then ~15-20s per image.
  */
 import { useState, useCallback } from 'react';
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8000';
+const PROXY_URL = `${BACKEND_URL}/api/rnai/remove-background`;
 
 export function useRemoveBg() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
   const removeBg = useCallback(async (imageDataUrl: string): Promise<string | null> => {
+    /* API Key check removed - handled by backend */
+    
     setLoading(true);
     setError(null);
     try {
-      // Increase timeout to 300 seconds for rembg processing
-      // Render free tier is slower, first request takes 30-45s to load ONNX models
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000);
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // RNAI is fast, 60s is enough
 
       try {
-        const res = await fetch(`${BACKEND}/api/rembg/`, {
+        const res = await fetch(PROXY_URL, {
           method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+          },
           body:    JSON.stringify({ image: imageDataUrl }),
           signal:  controller.signal,
         });
@@ -33,28 +34,33 @@ export function useRemoveBg() {
         clearTimeout(timeoutId);
 
         if (!res.ok) {
-          let msg = `เกิดข้อผิดพลาด (${res.status})`;
+          let msg = `RNAI Error (${res.status})`;
           try {
             const data = await res.json();
-            if (data.detail) msg = data.detail;
+            if (data.error) msg = data.error;
+            else if (data.message) msg = data.message;
           } catch {
             msg = await res.text().catch(() => msg);
           }
           throw new Error(msg);
         }
         const data = await res.json();
-        return data.image as string;   // transparent PNG data URL
+        if (data.error) throw new Error(data.error);
+        if (!data.image && data.message) throw new Error(data.message);
+        if (!data.image) throw new Error('ไม่ได้รับรูปภาพจาก RNAI — กรุณาลองใหม่อีกครั้ง');
+        
+        return data.image as string;   // transparent PNG data URL (or whatever the API returns)
       } catch (e: unknown) {
         clearTimeout(timeoutId);
         if ((e as DOMException)?.name === 'AbortError') {
-          throw new Error('ลบพื้นหลังใช้เวลานาน (>300 วินาที) - ลองใหม่หรือเลือกรูปที่เล็กกว่า');
+          throw new Error('การเชื่อมต่อกับ RNAI ล้มเหลว (Timeout) - กรุณาลองใหม่อีกครั้ง');
         }
         throw e;
       }
     } catch (e: unknown) {
       const errorMsg = (e as Error).message;
       setError(errorMsg);
-      console.error('RemoveBg error:', errorMsg);
+      console.error('RemoveBg RNAI error:', errorMsg);
       return null;
     } finally {
       setLoading(false);

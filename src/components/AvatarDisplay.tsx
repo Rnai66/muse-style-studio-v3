@@ -7,8 +7,7 @@ import { useState } from 'react';
 import type { UserProfile } from '@/types/profile';
 import { useAvatarGen } from '@/hooks/useAvatarGen';
 import AvatarSVG from '@/components/AvatarSVG';
-import { EMOJI } from '@/lib/emojis';
-import EmojiIcon from '@/components/EmojiIcon';
+import AppIcon from '@/components/AppIcon';
 import './AvatarDisplay.css';
 
 interface Props {
@@ -57,7 +56,7 @@ export default function AvatarDisplay({ profile, width = 140, onAvatarGenerated 
               className="avd-ai-img"
               style={{ width: '100%', height: '100%' }}
             />
-            <div className="avd-ai-badge"><EmojiIcon symbol={EMOJI.star} label="AI" /> AI Portrait</div>
+            <div className="avd-ai-badge"><AppIcon name="spark" label="AI" /> AI Portrait</div>
           </>
         ) : (
           <AvatarSVG profile={profile} width={width} />
@@ -83,15 +82,15 @@ export default function AvatarDisplay({ profile, width = 140, onAvatarGenerated 
         {loading
           ? <><span className="avd-btn-spinner" /> กำลังสร้าง…</>
           : displayUrl
-            ? `${EMOJI.reset} สร้างใหม่`
-            : `${EMOJI.star} สร้าง AI Portrait`
+            ? <><AppIcon name="reset" /> สร้างใหม่</>
+            : <><AppIcon name="spark" /> สร้าง AI Portrait</>
         }
       </button>
 
       {/* ── Error ── */}
       {friendlyError && (
         <div className="avd-error">
-          <span>{EMOJI.warning} {friendlyError.msg}</span>
+          <span><AppIcon name="warning" /> {friendlyError.msg}</span>
           {friendlyError.link && (
             <a href={friendlyError.link} target="_blank" rel="noreferrer" className="avd-error-link">
               เติมเครดิต →

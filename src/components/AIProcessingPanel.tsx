@@ -1,5 +1,5 @@
 import type { PipelineState } from '@/hooks/useAIPipeline';
-import { EMOJI } from '@/lib/emojis';
+import AppIcon from '@/components/AppIcon';
 
 interface Props {
   state: PipelineState;
@@ -36,8 +36,8 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
     <div style={styles.root}>
       {/* Header */}
       <div style={styles.header}>
-        <span style={styles.label}>{EMOJI.star} {label}</span>
-        <button style={styles.closeBtn} onClick={onReset} title="ปิด">{EMOJI.close}</button>
+        <span style={styles.label}><AppIcon name="spark" style={styles.inlineIcon} /> {label}</span>
+        <button style={styles.closeBtn} onClick={onReset} title="ปิด"><AppIcon name="close" style={styles.inlineIcon} /></button>
       </div>
 
       {/* Progress bar */}
@@ -59,7 +59,7 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
       {/* Error */}
       {status === 'error' && error && (
         <div style={styles.errorBox}>
-          <span>{EMOJI.warning} {error}</span>
+          <span><AppIcon name="warning" style={styles.inlineIcon} /> {error}</span>
         </div>
       )}
 
@@ -73,7 +73,7 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
             </div>
           )}
           <div style={styles.imgWrap}>
-            <span style={styles.imgLabel}>After {EMOJI.star}</span>
+            <span style={styles.imgLabel}>After</span>
             <img src={resultUrl} alt="AI result" style={styles.img} />
           </div>
         </div>
@@ -89,10 +89,10 @@ export default function AIProcessingPanel({ state, label = 'AI Processing', befo
               else downloadImage(resultUrl);
             }}
           >
-            {EMOJI.download} ดาวน์โหลด
+            <AppIcon name="download" style={styles.inlineIcon} /> ดาวน์โหลด
           </button>
           <button style={styles.resetBtn} onClick={onReset}>
-            {EMOJI.close} ล้าง
+            <AppIcon name="close" style={styles.inlineIcon} /> ล้าง
           </button>
         </div>
       )}
@@ -143,6 +143,9 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '2px 6px',
     borderRadius: '6px',
     transition: 'color 0.2s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressWrap: {
     height: '5px',
@@ -213,6 +216,10 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     gap: '8px',
   },
+  inlineIcon: {
+    fontSize: '0.95em',
+    verticalAlign: '-0.12em',
+  },
   downloadBtn: {
     flex: 1,
     padding: '10px',
@@ -226,6 +233,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'Inter, sans-serif',
     letterSpacing: '0.02em',
     transition: 'opacity 0.2s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
   },
   resetBtn: {
     padding: '10px 14px',
@@ -236,5 +247,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.8rem',
     cursor: 'pointer',
     fontFamily: 'Inter, sans-serif',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
   },
 };

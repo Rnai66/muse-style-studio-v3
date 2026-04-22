@@ -60,7 +60,7 @@ function usePipeline() {
             if (evt.type === 'progress') {
               setState(s => ({ ...s, progress: evt.percent, message: evt.message }));
             } else if (evt.type === 'result') {
-              setState({ status: 'done', progress: 100, message: 'เสร็จแล้ว! ✦', resultUrl: evt.url, error: null });
+              setState({ status: 'done', progress: 100, message: 'เสร็จแล้ว', resultUrl: evt.url, error: null });
             } else if (evt.type === 'error') {
               setState({ status: 'error', progress: 0, message: '', resultUrl: null, error: evt.message });
             }
@@ -143,7 +143,7 @@ export function useBodyAnalysis() {
 export interface StyleInput {
   personDataUrl: string;
   // Clothing items (use first item for tryon)
-  items: { dataUrl: string; base64: string; category: string }[];
+  items: { dataUrl: string; category: string }[];
   // Details
   hairstyle?: string;
   hairColor?: string;
@@ -243,7 +243,7 @@ export function useStylePipeline() {
       // ── Step 1: Virtual Try-On (first item) ──
       if (input.items.length > 0) {
         const item = input.items[0];
-        setState(s => ({ ...s, message: '👗 กำลังลองชุด...' }));
+        setState(s => ({ ...s, message: 'กำลังลองชุด...' }));
         // BUG FIX: was `data:image/jpeg;base64,${item.base64}` — hardcoded jpeg
         // would corrupt PNG / WebP uploads. Use dataUrl which carries the correct prefix.
         const resultUrl = await runStep(
@@ -264,7 +264,7 @@ export function useStylePipeline() {
 
       // ── Step 2: Hair ──
       if (input.hairstyle) {
-        setState(s => ({ ...s, message: '💇 กำลังเปลี่ยนทรงผม...' }));
+        setState(s => ({ ...s, message: 'กำลังเปลี่ยนทรงผม...' }));
         const extras = [
           input.accessories?.length ? input.accessories.join(', ') : '',
           input.shoes ? `wearing ${input.shoes} shoes` : '',
@@ -309,7 +309,7 @@ export function useStylePipeline() {
       setState({
         status: 'done',
         progress: 100,
-        message: 'เสร็จแล้ว! ✦',
+        message: 'เสร็จแล้ว',
         resultUrl: currentImageDataUrl,
         error: null,
       });

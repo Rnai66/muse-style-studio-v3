@@ -171,7 +171,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 .photo-empty:active { border-color: var(--gold); }
-.photo-empty-icon { font-size: 2.2rem; }
+.photo-empty-icon { font-size: 2.2rem; color: var(--gold2); }
 .photo-empty-text { font-size: .85rem; color: var(--text2); font-weight: 500; }
 .photo-empty-hint { font-size: .68rem; color: var(--text3); }
 
@@ -199,7 +199,7 @@
   font-size: .78rem;
   font-family: var(--font-sans);
   cursor: pointer;
-  transition: all .2s;
+  transition: background-color .2s, color .2s;
   -webkit-tap-highlight-color: transparent;
   position: relative;
 }
@@ -208,7 +208,7 @@
   color: var(--cream);
   box-shadow: 0 1px 6px rgba(0,0,0,.3);
 }
-.tab-icon { font-size: .9rem; }
+.tab-icon { font-size: .95rem; color: currentColor; }
 .tab-badge {
   position: absolute;
   top: 4px;
@@ -220,8 +220,13 @@
   border-radius: 99px;
   padding: 1px 5px;
   line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .tab-badge--gold { background: var(--gold); }
+.detail-sec-icon { font-size: .95rem; color: var(--gold2); }
+.detail-pill-icon { font-size: .95rem; color: currentColor; }
 
 /* ── Tab panel ──────────────────────────────────────────────────────────────── */
 .tab-panel {
@@ -332,7 +337,7 @@
   color: var(--text2);
   font-family: var(--font-sans);
   cursor: pointer;
-  transition: all .18s;
+  transition: background-color .18s, border-color .18s, color .18s;
   -webkit-tap-highlight-color: transparent;
 }
 .pill.active {
@@ -353,7 +358,7 @@
   border-radius: 20px;
   padding: .28rem .65rem;
   cursor: pointer;
-  transition: all .18s;
+  transition: border-color .18s;
   -webkit-tap-highlight-color: transparent;
 }
 .color-chip.active { border-color: var(--gold); }
@@ -447,4 +452,21 @@
   color: var(--text3);
   text-align: center;
   margin: -.4rem 0 0;
+}
+
+@media (max-width: 767px) {
+  .tab-panel {
+    animation: none;
+  }
+
+  .tab-btn.active,
+  .generate-btn {
+    box-shadow: none;
+  }
+
+  /* Remove generate-btn box-shadow transition on mobile */
+  .generate-btn {
+    transition: opacity .15s;
+    will-change: opacity;
+  }
 }

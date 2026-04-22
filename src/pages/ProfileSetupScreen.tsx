@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AppIcon from '@/components/AppIcon';
 import AvatarSVG from '@/components/AvatarSVG';
 import { useProfileStore } from '@/store/useProfileStore';
 import {
@@ -190,7 +191,7 @@ export default function ProfileSetupScreen() {
               <SummaryRow label="BMI"          value={`${profile.bmi}`} gold />
             </div>
             <div className="summary-tip">
-              <span className="tip-icon">✦</span>
+              <AppIcon name="spark" className="tip-icon" />
               <span>{BODY_TYPE_LABELS[profile.bodyType].tip}</span>
             </div>
           </div>
@@ -200,7 +201,7 @@ export default function ProfileSetupScreen() {
       {/* FOOTER */}
       <div className="setup-footer">
         <button className="btn-primary full-width" onClick={next}>
-          {step === STEPS.length - 1 ? 'เสร็จสิ้น ✦' : 'ถัดไป →'}
+          {step === STEPS.length - 1 ? 'เสร็จสิ้น' : 'ถัดไป →'}
         </button>
       </div>
     </div>

@@ -14,10 +14,26 @@ export default defineConfig({
     // Capacitor ต้องการ relative paths
     assetsDir: 'assets',
     sourcemap: false,
+    // Target iOS Safari (Capacitor WKWebView ≥ iOS 14)
+    target: ['es2015', 'safari14'],
+    // Warn ถ้า chunk ใหญ่กว่า 600kb
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core React
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          // Firebase split ออกเพราะหนักมาก
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          // Capacitor plugins
+          capacitor: [
+            '@capacitor/core',
+            '@capacitor/camera',
+            '@capacitor/filesystem',
+            '@capacitor/haptics',
+            '@capacitor/share',
+            '@capacitor/status-bar',
+          ],
         },
       },
     },
@@ -25,5 +41,12 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true, // เปิดให้ device บนเครือข่ายเดียวกัน access ได้
+    proxy: {
+      '/rnai-api': {
+        target: 'https://rnai-io.vercel.app/api/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/rnai-api/, ''),
+      },
+    },
   },
 });

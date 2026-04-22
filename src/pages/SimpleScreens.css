@@ -37,7 +37,7 @@
   padding-left: .9rem; position: relative;
 }
 .occ-tips li::before {
-  content: '✦';
+  content: '•';
   position: absolute; left: 0;
   color: var(--gold); font-size: .55rem;
   top: .3rem;

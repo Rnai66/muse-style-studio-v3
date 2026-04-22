@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import tryon, hairstyle, makeup, analyze, task_status, chat, rembg, avatar
+from routers import tryon, hairstyle, makeup, analyze, task_status, chat, rembg, avatar, rnai_proxy
 
 load_dotenv()
 
@@ -48,6 +48,7 @@ app.include_router(task_status.router, prefix="/api/tasks",   tags=["Task Queue"
 app.include_router(chat.router,        prefix="/api/chat",    tags=["AI Chat"])
 app.include_router(rembg.router,       prefix="/api/rembg",   tags=["Background Removal"])
 app.include_router(avatar.router,      prefix="/api/avatar",  tags=["Avatar"])
+app.include_router(rnai_proxy.router,  prefix="/api/rnai",    tags=["RNAI Proxy"])
 
 
 @app.get("/")

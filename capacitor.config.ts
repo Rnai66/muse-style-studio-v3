@@ -8,6 +8,8 @@ const config: CapacitorConfig = {
     // uncomment ระหว่าง dev เพื่อ hot-reload บนมือถือ
     // url: 'http://192.168.1.x:5173',
     // cleartext: true,
+    // ปิด error logging ที่ไม่จำเป็นใน production
+    errorPath: 'index.html',
   },
   plugins: {
     Camera: {
@@ -24,12 +26,18 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     allowsLinkPreview: false,
     limitsNavigationsToAppBoundDomains: true,
+    // ใช้ mobile rendering mode (ไม่ให้ WKWebView คิดว่าเป็น desktop)
+    preferredContentMode: 'mobile',
+    // ปิด swipe-back gesture เพื่อลด gesture recognizer overhead
+    handleApplicationNotifications: false,
+    // WKWebView scrollView: ให้แอปจัดการเอง (ลด bounce lag)
+    scrollEnabled: false,
   },
   android: {
     backgroundColor: '#0e0d0c',
     allowMixedContent: false,
     captureInput: true,
-    webContentsDebuggingEnabled: true,
+    webContentsDebuggingEnabled: false,
   },
 };
 

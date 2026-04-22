@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLookbook } from '@/hooks/useLookbook';
+import AppIcon from '@/components/AppIcon';
 import './LookbookScreen.css';
 
 const OCCASIONS = ['ทั้งหมด', 'งานแต่งงาน', 'ทำงาน', 'กลางคืน', 'นัดเดท', 'พักผ่อน'];
@@ -19,7 +20,9 @@ export default function LookbookScreen() {
         <h1 className="lb-title serif">Look<em>book</em></h1>
         <div style={{display: 'flex', gap: '0.8rem', alignItems: 'center'}}>
           <span className="lb-count">{looks.length} ลุค</span>
-          <button className="home-notif" style={{background:'transparent', border:'none', color:'var(--text1)', fontSize:'1.2rem', padding: 0}} onClick={() => navigate('/profile')}>◎</button>
+          <button className="home-notif" style={{background:'transparent', border:'none', color:'var(--text1)', fontSize:'1.2rem', padding: 0}} onClick={() => navigate('/profile')} aria-label="โปรไฟล์">
+            <AppIcon name="profile" label="โปรไฟล์" />
+          </button>
         </div>
       </header>
 
@@ -36,9 +39,9 @@ export default function LookbookScreen() {
 
       {filtered.length === 0 ? (
         <div className="lb-empty">
-          <div className="lb-empty-icon">📚</div>
+          <div className="lb-empty-icon"><AppIcon name="details" label="Lookbook" /></div>
           <p className="lb-empty-text">ยังไม่มีลุคที่บันทึก</p>
-          <p className="lb-empty-sub">สร้างลุคด้วย AI Studio แล้วกด "บันทึก ✦"</p>
+          <p className="lb-empty-sub">สร้างลุคด้วย AI Studio แล้วกดบันทึก</p>
         </div>
       ) : (
         <div className="lb-grid">
@@ -49,7 +52,7 @@ export default function LookbookScreen() {
                   src={look.imageUrl}
                   alt={look.title}
                   className="lb-img"
-                  onError={e => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260"><rect width="200" height="260" fill="%231e1c1a"/><text x="100" y="130" text-anchor="middle" fill="%236a6460" font-size="40">👗</text></svg>'; }}
+                  onError={e => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="260" viewBox="0 0 200 260"><rect width="200" height="260" fill="%231e1c1a"/><path d="M90 56h20l-5 18v16l22 40H73l22-40V74l-5-18Z" fill="none" stroke="%236a6460" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }}
                 />
                 <button
                   className="lb-delete-btn"

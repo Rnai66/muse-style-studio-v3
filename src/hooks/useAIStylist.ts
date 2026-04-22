@@ -22,7 +22,7 @@ const SYSTEM = `คุณคือ MUSE — AI Stylist ผู้เชี่ย�
 
 export function useAIStylist() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'สวัสดีค่ะ! ฉันคือ MUSE AI Stylist ✦ พร้อมช่วยแนะนำการแต่งตัวให้เหมาะกับคุณ อัปโหลดรูปหรือถามคำถามเกี่ยวกับสไตล์ได้เลยนะคะ 💛' },
+    { role: 'assistant', content: 'สวัสดีค่ะ! ฉันคือ MUSE AI Stylist พร้อมช่วยแนะนำการแต่งตัวให้เหมาะกับคุณ อัปโหลดรูปหรือถามคำถามเกี่ยวกับสไตล์ได้เลยนะคะ' },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export function useAIStylist() {
   }, [messages]);
 
   const reset = useCallback(() => {
-    setMessages([{ role: 'assistant', content: 'เริ่มต้นใหม่อีกครั้งนะคะ ✦ มีอะไรให้ฉันช่วยเรื่องสไตล์ไหมคะ?' }]);
+    setMessages([{ role: 'assistant', content: 'เริ่มต้นใหม่อีกครั้งนะคะ มีอะไรให้ฉันช่วยเรื่องสไตล์ไหมคะ?' }]);
   }, []);
 
   return { messages, loading, error, send, reset };

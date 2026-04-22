@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
+import AppIcon from '@/components/AppIcon';
 import AvatarDisplay from '@/components/AvatarDisplay';
 import { useProfileStore } from '@/store/useProfileStore';
 import {
@@ -37,7 +38,7 @@ export default function ProfileScreen() {
           <span className="prof-type-badge">{BODY_TYPE_LABELS[profile.bodyType].th}</span>
           <p className="prof-type-tip">{BODY_TYPE_LABELS[profile.bodyType].tip}</p>
           <button className="btn-primary prof-edit-btn" onClick={() => nav('/profile/setup')}>
-            ✏️ แก้ไขโปรไฟล์
+            <AppIcon name="edit" /> แก้ไขโปรไฟล์
           </button>
         </div>
       </div>
@@ -75,13 +76,13 @@ export default function ProfileScreen() {
 
       <section className="prof-section">
         <button className="prof-action-row" onClick={() => nav('/room')}>
-          <span>👗 ห้องแต่งตัว Virtual</span><span className="prof-arrow">→</span>
+          <span><AppIcon name="dress" /> ห้องแต่งตัว Virtual</span><span className="prof-arrow">→</span>
         </button>
         <button className="prof-action-row" onClick={() => nav('/studio')}>
-          <span>✦ ปรึกษา AI Stylist</span><span className="prof-arrow">→</span>
+          <span><AppIcon name="ai" /> ปรึกษา AI Stylist</span><span className="prof-arrow">→</span>
         </button>
         <button className="prof-action-row danger" onClick={handleLogout}>
-          <span>👋 ออกจากระบบ</span><span className="prof-arrow">→</span>
+          <span><AppIcon name="logout" /> ออกจากระบบ</span><span className="prof-arrow">→</span>
         </button>
       </section>
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AppIcon, { type AppIconName } from '@/components/AppIcon';
 import AvatarSVG from '@/components/AvatarSVG';
 import { useProfileStore } from '@/store/useProfileStore';
 import { useAIStylist } from '@/hooks/useAIStylist';
@@ -9,27 +10,27 @@ import './DressingRoomScreen.css';
 interface Item {
   id: string; name: string; price: string;
   category: 'top' | 'bottom' | 'dress' | 'shoes' | 'bag' | 'accessory';
-  color: string; emoji: string;
+  color: string; icon: AppIconName;
 }
 
 const CATALOG: Item[] = [
   // Tops
-  { id:'t1', name:'Silk Blouse', price:'฿1,490', category:'top', color:'#e8d5b5', emoji:'👚' },
-  { id:'t2', name:'Blazer ดำ',   price:'฿2,150', category:'top', color:'#2a2828', emoji:'🧥' },
-  { id:'t3', name:'Crop Top',    price:'฿790',   category:'top', color:'#c9a96e', emoji:'👕' },
-  { id:'t4', name:'Knit Top',    price:'฿1,090', category:'top', color:'#8a9fc0', emoji:'🧶' },
+  { id:'t1', name:'Silk Blouse', price:'฿1,490', category:'top', color:'#e8d5b5', icon:'top' },
+  { id:'t2', name:'Blazer ดำ',   price:'฿2,150', category:'top', color:'#2a2828', icon:'outerwear' },
+  { id:'t3', name:'Crop Top',    price:'฿790',   category:'top', color:'#c9a96e', icon:'top' },
+  { id:'t4', name:'Knit Top',    price:'฿1,090', category:'top', color:'#8a9fc0', icon:'top' },
   // Bottoms
-  { id:'b1', name:'Midi Skirt',  price:'฿1,290', category:'bottom', color:'#c8a878', emoji:'👗' },
-  { id:'b2', name:'Wide Pants',  price:'฿1,590', category:'bottom', color:'#505870', emoji:'👖' },
-  { id:'b3', name:'Mini Skirt',  price:'฿890',   category:'bottom', color:'#d4827a', emoji:'🩱' },
+  { id:'b1', name:'Midi Skirt',  price:'฿1,290', category:'bottom', color:'#c8a878', icon:'bottom' },
+  { id:'b2', name:'Wide Pants',  price:'฿1,590', category:'bottom', color:'#505870', icon:'bottom' },
+  { id:'b3', name:'Mini Skirt',  price:'฿890',   category:'bottom', color:'#d4827a', icon:'bottom' },
   // Dresses
-  { id:'d1', name:'Wrap Dress',  price:'฿1,890', category:'dress', color:'#7a9f78', emoji:'👗' },
-  { id:'d2', name:'Slip Dress',  price:'฿2,290', category:'dress', color:'#c0a870', emoji:'👗' },
-  { id:'d3', name:'Maxi Dress',  price:'฿2,590', category:'dress', color:'#8870c0', emoji:'👗' },
+  { id:'d1', name:'Wrap Dress',  price:'฿1,890', category:'dress', color:'#7a9f78', icon:'dress' },
+  { id:'d2', name:'Slip Dress',  price:'฿2,290', category:'dress', color:'#c0a870', icon:'dress' },
+  { id:'d3', name:'Maxi Dress',  price:'฿2,590', category:'dress', color:'#8870c0', icon:'dress' },
   // Shoes
-  { id:'s1', name:'Block Heels', price:'฿1,890', category:'shoes', color:'#2a1a10', emoji:'👠' },
-  { id:'s2', name:'White Sneakers', price:'฿2,490', category:'shoes', color:'#e8e8e0', emoji:'👟' },
-  { id:'s3', name:'Loafers',     price:'฿1,690', category:'shoes', color:'#5a3820', emoji:'🥿' },
+  { id:'s1', name:'Block Heels', price:'฿1,890', category:'shoes', color:'#2a1a10', icon:'heels' },
+  { id:'s2', name:'White Sneakers', price:'฿2,490', category:'shoes', color:'#e8e8e0', icon:'sneaker' },
+  { id:'s3', name:'Loafers',     price:'฿1,690', category:'shoes', color:'#5a3820', icon:'loafers' },
 ];
 
 const CATS = [
@@ -102,7 +103,7 @@ export default function DressingRoomScreen() {
               ? <p className="worn-empty">เลือกไอเทมจากด้านขวา →</p>
               : Object.values(selected).map(i => (
                   <div key={i.id} className="worn-chip">
-                    <span>{i.emoji}</span>
+                    <AppIcon name={i.icon} />
                     <span className="worn-name">{i.name}</span>
                     <button className="worn-rm" onClick={() => toggleItem(i)}>×</button>
                   </div>
@@ -115,7 +116,7 @@ export default function DressingRoomScreen() {
               <>
                 <button className="av-btn" onClick={clearOutfit}>รีเซต</button>
                 <button className="av-btn gold" onClick={getAIAdvice} disabled={loading}>
-                  {loading ? '...' : '✦ ขอคำแนะนำ'}
+                  {loading ? '...' : 'ขอคำแนะนำ'}
                 </button>
               </>
             )}
@@ -123,7 +124,7 @@ export default function DressingRoomScreen() {
 
           {aiTip && (
             <div className="ai-tip-box">
-              <div className="ai-tip-label">MUSE AI ✦</div>
+              <div className="ai-tip-label">MUSE AI</div>
               <p className="ai-tip-text">{aiTip}</p>
             </div>
           )}
@@ -153,14 +154,14 @@ export default function DressingRoomScreen() {
                   onClick={() => toggleItem(item)}
                 >
                   <div className="item-swatch" style={{ background: item.color }}>
-                    <span>{item.emoji}</span>
+                    <AppIcon name={item.icon} />
                   </div>
                   <div className="item-info">
                     <div className="item-name">{item.name}</div>
                     <div className="item-price">{item.price}</div>
                   </div>
                   <div className={`item-check ${isOn ? 'on' : ''}`}>
-                    {isOn ? '✓' : '+'}
+                    {isOn ? <AppIcon name="check" /> : '+'}
                   </div>
                 </div>
               );

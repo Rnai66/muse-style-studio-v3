@@ -1,6 +1,6 @@
 // ── MUSE Image Editor — Core Types ──
 
-import { EMOJI } from '@/lib/emojis';
+import type { AppIconName } from '@/components/AppIcon';
 
 export type LayerCategory =
   | 'base'         // original person photo
@@ -55,7 +55,8 @@ export interface CatalogItem {
   name: string;
   nameEn: string;
   category: LayerCategory;
-  previewUrl: string;     // emoji or image URL
+  previewUrl: string;     // image URL or icon token
+  previewIcon?: AppIconName;
   color: string;          // hex for swatch
   price: string;
   tags: string[];
@@ -67,18 +68,18 @@ export const DEFAULT_TRANSFORM: Transform = {
   x: 0, y: 0, scale: 1, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1, flipX: false,
 };
 
-export const CATEGORY_META: Record<LayerCategory, { label: string; icon: string; aiSupported: boolean }> = {
-  base:      { label: 'รูปต้นฉบับ',   icon: EMOJI.avatar, aiSupported: false },
-  top:       { label: 'เสื้อ',         icon: EMOJI.top, aiSupported: true  },
-  bottom:    { label: 'กางเกง/กระโปรง', icon: EMOJI.bottom, aiSupported: true  },
-  dress:     { label: 'ชุดเดรส',       icon: EMOJI.dress, aiSupported: true  },
-  hair:      { label: 'ทรงผม',         icon: EMOJI.hair, aiSupported: true  },
-  shoes:     { label: 'รองเท้า',       icon: EMOJI.shoes, aiSupported: true  },
-  bag:       { label: 'กระเป๋า',       icon: EMOJI.bag, aiSupported: false },
-  hat:       { label: 'หมวก',          icon: EMOJI.hat, aiSupported: false },
-  glasses:   { label: 'แว่นตา',        icon: EMOJI.glasses, aiSupported: false },
-  jewelry:   { label: 'เครื่องประดับ', icon: EMOJI.jewelry, aiSupported: false },
-  outerwear: { label: 'เสื้อคลุม',    icon: EMOJI.outerwear, aiSupported: true  },
+export const CATEGORY_META: Record<LayerCategory, { label: string; icon: AppIconName; aiSupported: boolean }> = {
+  base:      { label: 'รูปต้นฉบับ',   icon: 'avatar', aiSupported: false },
+  top:       { label: 'เสื้อ',         icon: 'top', aiSupported: true  },
+  bottom:    { label: 'กางเกง/กระโปรง', icon: 'bottom', aiSupported: true  },
+  dress:     { label: 'ชุดเดรส',       icon: 'dress', aiSupported: true  },
+  hair:      { label: 'ทรงผม',         icon: 'hair', aiSupported: true  },
+  shoes:     { label: 'รองเท้า',       icon: 'shoes', aiSupported: true  },
+  bag:       { label: 'กระเป๋า',       icon: 'bag', aiSupported: false },
+  hat:       { label: 'หมวก',          icon: 'hat', aiSupported: false },
+  glasses:   { label: 'แว่นตา',        icon: 'glasses', aiSupported: false },
+  jewelry:   { label: 'เครื่องประดับ', icon: 'jewelry', aiSupported: false },
+  outerwear: { label: 'เสื้อคลุม',    icon: 'outerwear', aiSupported: true  },
 };
 
 export const LAYER_ORDER: LayerCategory[] = [

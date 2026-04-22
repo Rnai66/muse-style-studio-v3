@@ -32,7 +32,7 @@
   display: flex; flex-direction: column; align-items: center;
   gap: .65rem; padding: 3rem 1rem; text-align: center;
 }
-.lb-empty-icon { font-size: 2.5rem; }
+.lb-empty-icon { font-size: 2.2rem; color: var(--gold2); }
 .lb-empty-text { font-size: .95rem; color: var(--text2); }
 .lb-empty-sub  { font-size: .8rem; color: var(--text3); line-height: 1.6; }
 

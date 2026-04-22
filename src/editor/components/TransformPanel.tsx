@@ -1,6 +1,5 @@
 import type { Transform } from '../types';
-import { EMOJI } from '@/lib/emojis';
-import EmojiIcon from '@/components/EmojiIcon';
+import AppIcon from '@/components/AppIcon';
 import './TransformPanel.css';
 
 interface Props {
@@ -23,7 +22,7 @@ export default function TransformPanel({ transform, onChange }: Props) {
       <div className="tp-title">ปรับแต่ง Layer</div>
 
       {/* ── Body proportions ── */}
-      <div className="tp-section-label"><EmojiIcon symbol={EMOJI.body} className="tp-icon" label="สัดส่วน" /> สัดส่วนร่างกาย</div>
+      <div className="tp-section-label"><AppIcon name="text" className="tp-icon" label="สัดส่วน" /> สัดส่วนร่างกาย</div>
 
       {/* Silhouette preview */}
       <div className="tp-silhouette-wrap">
@@ -58,11 +57,11 @@ export default function TransformPanel({ transform, onChange }: Props) {
         style={{ width: '100%', marginBottom: '.5rem' }}
         onClick={() => onChange({ scaleX: 1, scaleY: 1 })}
       >
-        {EMOJI.reset} รีเซตสัดส่วน
+        <AppIcon name="reset" /> รีเซตสัดส่วน
       </button>
 
       {/* ── General transforms ── */}
-      <div className="tp-section-label" style={{ marginTop: '.5rem' }}><EmojiIcon symbol={EMOJI.tools} className="tp-icon" label="ทั่วไป" /> ทั่วไป</div>
+      <div className="tp-section-label" style={{ marginTop: '.5rem' }}><AppIcon name="tools" className="tp-icon" label="ทั่วไป" /> ทั่วไป</div>
 
       <SliderRow
         label="ขนาด"
@@ -105,11 +104,11 @@ export default function TransformPanel({ transform, onChange }: Props) {
         <button
           className={`tp-toggle ${t.flipX ? 'active' : ''}`}
           onClick={() => onChange({ flipX: !t.flipX })}
-        >{EMOJI.swap} กลับสาย</button>
+        ><AppIcon name="swap" /> กลับด้าน</button>
         <button
           className="tp-toggle"
           onClick={() => onChange({ x: 0, y: 0, scale: 1, scaleX: 1, scaleY: 1, rotation: 0, opacity: 1, flipX: false })}
-        >{EMOJI.reset} รีเซตทั้งหมด</button>
+        ><AppIcon name="reset" /> รีเซตทั้งหมด</button>
       </div>
     </div>
   );

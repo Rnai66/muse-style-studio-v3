@@ -2,8 +2,8 @@ import { useRef, useState, useCallback } from 'react';
 import type { CatalogItem, LayerCategory } from '../types';
 import { CATEGORY_META } from '../types';
 import { useRemoveBg } from '@/hooks/useRemoveBg';
-import EmojiIcon from '@/components/EmojiIcon';
-import { EMOJI } from '@/lib/emojis';
+import AppIcon from '@/components/AppIcon';
+import { optimizeImageDataUrl } from '@/lib/image';
 import './UploadItemPanel.css';
 
 const UPLOADABLE_CATS: LayerCategory[] = [
@@ -23,6 +23,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
   const [category, setCategory]       = useState<LayerCategory>('dress');
   const [dragging, setDragging]       = useState(false);
   const [bgRemoved, setBgRemoved]     = useState(false);
+  const [loadError, setLoadError]     = useState<string | null>(null);
 
   const { removeBg, loading: removingBg, error: rembgError } = useRemoveBg();
 
@@ -33,10 +34,24 @@ export default function UploadItemPanel({ onAdd }: Props) {
     setBgRemoved(false);
     setOriginal(null);
     const reader = new FileReader();
-    reader.onload = e => {
-      const url = e.target?.result as string;
-      setPreview(url);
-      setOriginal(url);
+    reader.onload = async e => {
+      setLoadError(null);
+      try {
+        const rawUrl = e.target?.result as string;
+        const url = await optimizeImageDataUrl(rawUrl, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 0.76,
+          mimeType: 'image/jpeg',
+        });
+        setPreview(url);
+        setOriginal(url);
+      } catch (err: unknown) {
+        console.error('Local optimization error:', err);
+        setLoadError((err as Error).message);
+        setPreview(null);
+        setFileName('');
+      }
     };
     reader.readAsDataURL(file);
   }, []);
@@ -109,12 +124,12 @@ export default function UploadItemPanel({ onAdd }: Props) {
           <div className="uip-preview-wrap" style={{ background: bgRemoved ? 'repeating-conic-gradient(#3a3a4a 0% 25%, #2a2a3a 0% 50%) 0 0 / 12px 12px' : undefined }}>
             <img src={preview} alt="preview" className="uip-preview-img" />
             {bgRemoved && (
-              <div className="uip-bg-removed-badge">{EMOJI.check} ลบพื้นหลังแล้ว</div>
+              <div className="uip-bg-removed-badge"><AppIcon name="check" /> ลบพื้นหลังแล้ว</div>
             )}
           </div>
         ) : (
           <div className="uip-drop-content">
-            <EmojiIcon symbol={EMOJI.upload} className="uip-drop-icon" label="อัปโหลด" />
+            <AppIcon name="upload" className="uip-drop-icon" label="อัปโหลด" />
             <span className="uip-drop-title">คลิกหรือลากรูปมาวาง</span>
             <span className="uip-drop-hint">PNG · JPG · WEBP · GIF · SVG</span>
           </div>
@@ -140,28 +155,32 @@ export default function UploadItemPanel({ onAdd }: Props) {
             >
               {removingBg
                 ? <><span className="uip-spinner" /> กำลังลบพื้นหลัง…</>
-                : <><EmojiIcon symbol={EMOJI.magic} className="uip-action-icon" label="ลบพื้นหลัง" /> ลบพื้นหลัง</>
+                : <><AppIcon name="magic" className="uip-action-icon" label="ลบพื้นหลัง" /> ลบพื้นหลัง</>
               }
             </button>
           ) : (
             <button className="uip-restore-btn" onClick={handleRestoreOriginal}>
-              {EMOJI.reset} คืนพื้นหลังเดิม
+              <AppIcon name="reset" /> คืนพื้นหลังเดิม
             </button>
           )}
           <button className="uip-change-btn" onClick={() => fileRef.current?.click()}>
-            <EmojiIcon symbol={EMOJI.folder} className="uip-action-icon" label="เปลี่ยนรูป" /> เปลี่ยนรูป
+            <AppIcon name="gallery" className="uip-action-icon" label="เปลี่ยนรูป" /> เปลี่ยนรูป
           </button>
         </div>
       )}
 
       {removingBg && (
         <div className="uip-processing-hint">
-          {EMOJI.clock} กำลังประมวลผล... (อาจใช้เวลา 1-3 นาที)
+          กำลังประมวลผล... (อาจใช้เวลา 1-3 นาที)
         </div>
       )}
 
       {rembgError && (
-        <div className="uip-error">{EMOJI.warning} {rembgError}</div>
+        <div className="uip-error"><AppIcon name="warning" /> {rembgError}</div>
+      )}
+
+      {loadError && (
+        <div className="uip-error"><AppIcon name="warning" /> {loadError}</div>
       )}
 
       {/* ── Form ── */}
@@ -187,7 +206,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
                   className={`uip-cat-btn ${category === cat ? 'active' : ''}`}
                   onClick={() => setCategory(cat)}
                 >
-                  <span className="uip-cat-icon">{CATEGORY_META[cat].icon}</span>
+                  <AppIcon name={CATEGORY_META[cat].icon} className="uip-cat-icon" label={CATEGORY_META[cat].label} />
                   <span className="uip-cat-label">{CATEGORY_META[cat].label}</span>
                 </button>
               ))}
@@ -196,7 +215,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
 
           <div className="uip-actions">
             <button className="uip-add-btn" onClick={handleAdd}>
-              <EmojiIcon symbol={EMOJI.star} className="uip-action-icon" label="เพิ่ม" /> เพิ่มลงบนรูป
+              <AppIcon name="spark" className="uip-action-icon" label="เพิ่ม" /> เพิ่มลงบนรูป
             </button>
             <button
               className="uip-reset-btn"
@@ -208,7 +227,7 @@ export default function UploadItemPanel({ onAdd }: Props) {
                 setBgRemoved(false);
               }}
             >
-              {EMOJI.close} เลือกใหม่
+              <AppIcon name="close" /> เลือกใหม่
             </button>
           </div>
         </div>
@@ -216,12 +235,12 @@ export default function UploadItemPanel({ onAdd }: Props) {
 
       {!preview && (
         <div className="uip-tip">
-          <p><EmojiIcon symbol={EMOJI.sparkle} className="uip-tip-icon" label="เคล็ดลับ" /> อัปโหลดรูปเสื้อผ้า กระเป๋า รองเท้า หรืออุปกรณ์เสริม แล้วใช้ <strong>{EMOJI.magic} ลบพื้นหลัง</strong> เพื่อตัดเหลือแต่ไอเทมก่อนวางทับรูปของคุณ</p>
+          <p><AppIcon name="spark" className="uip-tip-icon" label="เคล็ดลับ" /> อัปโหลดรูปเสื้อผ้า กระเป๋า รองเท้า หรืออุปกรณ์เสริม แล้วใช้ <strong>ลบพื้นหลัง</strong> เพื่อตัดเหลือแต่ไอเทมก่อนวางทับรูปของคุณ</p>
         </div>
       )}
 
       {fileName && !preview && (
-        <div className="uip-loading">⏳ กำลังโหลด {fileName}…</div>
+        <div className="uip-loading">กำลังโหลด {fileName}…</div>
       )}
     </div>
   );

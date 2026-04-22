@@ -64,6 +64,9 @@ html, body, #root {
   line-height: 1.6;
   overflow-x: hidden;
   touch-action: manipulation;
+  /* GPU layer on root for iOS compositing */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .icon-emoji,
@@ -101,6 +104,9 @@ html, body, #root {
   padding-top: calc(var(--safe-top) + 10px);
   padding-left: max(10px, env(safe-area-inset-left));
   padding-right: max(10px, env(safe-area-inset-right));
+  /* Prevent stacking context re-paints on scroll */
+  contain: layout style;
+  isolation: isolate;
 }
 
 /* ── RESPONSIVE FONT SIZING ── */
@@ -205,6 +211,13 @@ html, body, #root {
   .section-title {
     font-size: 1.5rem;
   }
+
+  .fade-up,
+  .fade-up-1,
+  .fade-up-2,
+  .fade-up-3 {
+    animation: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -214,6 +227,32 @@ html, body, #root {
   
   .section-title {
     font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Disable all transitions on mobile for performance */
+  .btn-primary,
+  .btn-outline,
+  .card,
+  .occ-chip,
+  .feat-card,
+  .studio-cta,
+  .tab-btn,
+  .pill,
+  .color-chip,
+  .makeup-chip,
+  .photo-empty,
+  .photo-btn,
+  .custom-textarea,
+  .item-add-btn {
+    transition: none !important;
+  }
+
+  .btn-primary:hover:not(:disabled),
+  .card:hover {
+    transform: none;
+    box-shadow: none;
   }
 }
 
@@ -237,7 +276,21 @@ html, body, #root {
 @keyframes blink {
   0%,80%,100% { opacity:.2; } 40% { opacity:1; }
 }
-.fade-up { animation: fadeUp .4s ease both; }
+.fade-up { animation: fadeUp .4s ease both; will-change: opacity, transform; }
 .fade-up-1 { animation-delay: .05s; }
 .fade-up-2 { animation-delay: .1s; }
 .fade-up-3 { animation-delay: .15s; }
+
+/* ── SCROLLABLE CONTAINERS (GPU acceleration) ── */
+.occasions-scroll,
+.cat-scroll,
+.quick-scroll,
+.chat-messages,
+.gen-body,
+.room-body,
+.items-list {
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: scroll-position;
+}

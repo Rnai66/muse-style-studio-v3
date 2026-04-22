@@ -139,6 +139,7 @@
   padding: .4rem .75rem; font-size: .75rem; color: var(--text2); cursor: pointer; white-space: nowrap;
   transition: all 0.2s; font-weight: 500;
 }
+.cat-chip-icon { font-size: .95rem; margin-right: .18rem; vertical-align: -0.08em; }
 .cat-chip:hover { border-color: var(--gold); background: var(--bg4); color: var(--gold); }
 .cat-chip.active { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
 .cat-search {
@@ -163,6 +164,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 .ci-emoji { font-size: 1.6rem; line-height: 1; }
+.ci-icon { font-size: 1.45rem; color: rgba(12, 10, 8, 0.82); }
 .ci-info { flex: 1; min-width: 0; }
 .ci-name { font-size: .9rem; color: var(--cream); font-weight: 500; }
 .ci-name-en { font-size: .75rem; color: var(--text3); margin-top: .1rem; }

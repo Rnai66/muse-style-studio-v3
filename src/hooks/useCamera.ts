@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { optimizeImageDataUrl } from '@/lib/image';
 
 export interface CapturedImage {
   dataUrl: string;
-  base64: string;
   format: string;
 }
 
@@ -23,11 +23,17 @@ export function useCamera() {
         allowEditing: false,
       });
 
-      const base64 = photo.base64String ?? '';
       const format = photo.format ?? 'jpeg';
-      const dataUrl = `data:image/${format};base64,${base64}`;
+      const rawBase64 = photo.base64String ?? '';
+      const rawDataUrl = `data:image/${format};base64,${rawBase64}`;
+      const dataUrl = await optimizeImageDataUrl(rawDataUrl, {
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.78,
+        mimeType: 'image/jpeg',
+      });
 
-      const captured: CapturedImage = { dataUrl, base64, format };
+      const captured: CapturedImage = { dataUrl, format: 'jpeg' };
       setImage(captured);
       return captured;
     } catch (err: unknown) {

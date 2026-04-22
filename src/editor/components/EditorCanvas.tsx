@@ -1,7 +1,8 @@
 import { useRef, useCallback } from 'react';
 import type { Layer, EditorState } from '../types';
+import { CATEGORY_META } from '../types';
 import { useCanvasDrag } from '../hooks/useCanvasDrag';
-import { EMOJI } from '@/lib/emojis';
+import AppIcon from '@/components/AppIcon';
 import './EditorCanvas.css';
 
 interface Props {
@@ -63,7 +64,7 @@ export default function EditorCanvas({ state, onSelectLayer, onTransformLayer }:
           <div className="ec-comparison">
             <img src={aiResultUrl} alt="AI result" className="ec-comparison-img"
               style={{ width: canvasW * zoom, height: canvasH * zoom }} />
-            <div className="ec-comparison-label">AI {EMOJI.star} ผลลัพธ์</div>
+            <div className="ec-comparison-label">AI ผลลัพธ์</div>
           </div>
         )}
       </div>
@@ -165,7 +166,11 @@ function DraggableLayer({ layer, zoom, isSelected, canvasW, canvasH, onSelect, o
         ? <img src={layer.imageUrl} alt={layer.name} draggable={false} style={{ width: '100%', display: 'block' }} />
         : (
           <div className="ec-layer-emoji-placeholder">
-            <span style={{ fontSize: Math.max(24, imgW * 0.4) }}>{layer.imageUrl}</span>
+            <AppIcon
+              name={CATEGORY_META[layer.category].icon}
+              label={layer.name}
+              style={{ fontSize: Math.max(24, imgW * 0.28), color: 'rgba(20, 18, 16, 0.76)' }}
+            />
           </div>
         )
       }

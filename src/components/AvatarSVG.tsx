@@ -3,6 +3,7 @@
  * Each hair style (straight/wavy/curly/afro/ponytail/bun/braids/updo)
  * renders a distinct, recognisable silhouette.
  */
+import { memo, useMemo } from 'react';
 import type { UserProfile, HairStyle } from '@/types/profile';
 import { SKIN_TONES, HAIR_COLORS } from '@/types/profile';
 
@@ -41,7 +42,7 @@ const HAIR_DROP: Record<string,number> = {
   bald:0, short:14, ear:30, shoulder:68, long:110, verylong:160,
 };
 
-export default function AvatarSVG({ profile, width = 140 }: Props) {
+function AvatarSVGInner({ profile, width = 140 }: Props) {
   const skin = SKIN_TONES[profile.skinTone];
   const hair = HAIR_COLORS[profile.hairColor];
   const h    = Math.round(width * 1.65);
@@ -51,10 +52,15 @@ export default function AvatarSVG({ profile, width = 140 }: Props) {
   const [fx,fy]= FACE_SHAPE[profile.faceShape] ?? [34,42];
   const body   = BODY[profile.bodyType] ?? BODY.rectangle;
 
-  const skinH = lighten(skin.hex, 18);
-  const skinL = skin.shadow;
-  const hairH = lighten(hair.hex, 26);
-  const hairD = darken(hair.hex, 14);
+  // Memoize expensive color computations
+  const colors = useMemo(() => ({
+    skinH: lighten(skin.hex, 18),
+    skinL: skin.shadow,
+    hairH: lighten(hair.hex, 26),
+    hairD: darken(hair.hex, 14),
+  }), [skin.hex, skin.shadow, hair.hex]);
+
+  const { skinH, skinL, hairH } = colors;
 
   const cx = 100, cy = 80;
   const hStyle = profile.hairStyle as HairStyle;
@@ -73,7 +79,7 @@ export default function AvatarSVG({ profile, width = 140 }: Props) {
         <linearGradient id={`${uid}hr`} x1="0.3" y1="0" x2="0.7" y2="1">
           <stop offset="0%"   stopColor={hairH}/>
           <stop offset="60%"  stopColor={hair.hex}/>
-          <stop offset="100%" stopColor={hairD}/>
+          <stop offset="100%" stopColor={colors.hairD}/>
         </linearGradient>
         <linearGradient id={`${uid}bd`} x1=".5" y1="0" x2=".5" y2="1">
           <stop offset="0%"   stopColor="rgba(220,215,255,0.18)"/>
@@ -142,6 +148,9 @@ export default function AvatarSVG({ profile, width = 140 }: Props) {
     </svg>
   );
 }
+
+const AvatarSVG = memo(AvatarSVGInner);
+export default AvatarSVG;
 
 // ─── Hair BACK (rendered behind head) ───────────────────────────────────────
 function HairBack({ cx,cy,fx,fy,drop,style,len,gradId,hairHex }:{

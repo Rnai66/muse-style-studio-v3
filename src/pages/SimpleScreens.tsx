@@ -1,13 +1,14 @@
+import AppIcon, { type AppIconName } from '@/components/AppIcon';
 import './SimpleScreens.css';
 
 /* ───────── OCCASIONS ───────── */
 const OCCS = [
-  { icon:'💍', title:'งานแต่งงาน',   sub:'Formal · Semi-formal',  tips:['เลือก Midi หรือ Maxi dress','หลีกเลี่ยงสีขาวและสีดำ','เน้นผ้าที่มีน้ำหนัก เช่น ซาติน ลูกไม้'] },
-  { icon:'💼', title:'ทำงาน / Office', sub:'Business · Smart Casual', tips:['Blazer + Trousers ดูน่าเชื่อถือ','Midi skirt กับ blouse ทำงานได้ดี','รองเท้า block heel เสริมความมั่นใจ'] },
-  { icon:'🌙', title:'กลางคืน',       sub:'Cocktail · Party',        tips:['Slip dress + statement accessories','Little Black Dress ตัวเดียวจบ','Metallic tones โดดเด่นในที่มืด'] },
-  { icon:'☕', title:'นัดเดท',        sub:'Romantic · Casual Chic',  tips:['Wrap dress เซ็กซี่แต่ไม่โชว์มาก','สีอ่อน ผ้านิ่ม ดูอ่อนหวาน','Ankle boots สุดท้าย'] },
-  { icon:'🌿', title:'พักผ่อน',      sub:'Casual · Resort',         tips:['Linen set สบาย ดูดี','Sundress + sandals ง่ายแต่สวย','สีสดใส ลายดอก รีสอร์ตไวบ์'] },
-  { icon:'🎓', title:'งาน Formal',    sub:'Black Tie · Gala',        tips:['Floor-length gown เป็นทางการที่สุด','ผ้าหรูหรา เช่น Velvet, Silk','Jewelry ชุดครบ เน้นคลาสสิก'] },
+  { icon:'jewelry' as AppIconName, title:'งานแต่งงาน',   sub:'Formal · Semi-formal',  tips:['เลือก Midi หรือ Maxi dress','หลีกเลี่ยงสีขาวและสีดำ','เน้นผ้าที่มีน้ำหนัก เช่น ซาติน ลูกไม้'] },
+  { icon:'briefcase' as AppIconName, title:'ทำงาน / Office', sub:'Business · Smart Casual', tips:['Blazer + Trousers ดูน่าเชื่อถือ','Midi skirt กับ blouse ทำงานได้ดี','รองเท้า block heel เสริมความมั่นใจ'] },
+  { icon:'moon' as AppIconName, title:'กลางคืน',       sub:'Cocktail · Party',        tips:['Slip dress + statement accessories','Little Black Dress ตัวเดียวจบ','Metallic tones โดดเด่นในที่มืด'] },
+  { icon:'coffee' as AppIconName, title:'นัดเดท',        sub:'Romantic · Casual Chic',  tips:['Wrap dress เซ็กซี่แต่ไม่โชว์มาก','สีอ่อน ผ้านิ่ม ดูอ่อนหวาน','Ankle boots สุดท้าย'] },
+  { icon:'leaf' as AppIconName, title:'พักผ่อน',      sub:'Casual · Resort',         tips:['Linen set สบาย ดูดี','Sundress + sandals ง่ายแต่สวย','สีสดใส ลายดอก รีสอร์ตไวบ์'] },
+  { icon:'lookbook' as AppIconName, title:'งาน Formal',    sub:'Black Tie · Gala',        tips:['Floor-length gown เป็นทางการที่สุด','ผ้าหรูหรา เช่น Velvet, Silk','Jewelry ชุดครบ เน้นคลาสสิก'] },
 ];
 
 export function OccasionScreen() {
@@ -22,7 +23,7 @@ export function OccasionScreen() {
         {OCCS.map(o=>(
           <div key={o.title} className="occ-card">
             <div className="occ-card-top">
-              <span className="occ-card-icon">{o.icon}</span>
+              <span className="occ-card-icon"><AppIcon name={o.icon} label={o.title} /></span>
               <div>
                 <div className="occ-card-title">{o.title}</div>
                 <div className="occ-card-sub">{o.sub}</div>
@@ -40,12 +41,12 @@ export function OccasionScreen() {
 
 /* ───────── COURSES ───────── */
 const COURSES = [
-  { icon:'💍', title:'Special Occasions',    desc:'เรียนรู้ Dress Code งานต่างๆ',    price:'฿1,290', lessons:8,  tag:'Popular' },
-  { icon:'✨', title:'Personal Style',        desc:'ค้นพบสไตล์ส่วนตัวที่ไม่ซ้ำใคร', price:'฿1,890', lessons:12, tag:'New' },
-  { icon:'💼', title:'Office & Career',       desc:'แต่งตัวให้ดูน่าเชื่อถือในงาน',   price:'฿1,490', lessons:10, tag:'Bestseller' },
-  { icon:'🎨', title:'Color Analysis',        desc:'เลือกสีที่เหมาะกับ skin tone',    price:'฿990',  lessons:6,  tag:'' },
-  { icon:'👗', title:'Capsule Wardrobe',      desc:'ตู้เสื้อผ้าน้อยชิ้นแต่ครบครัน', price:'฿1,190', lessons:8,  tag:'' },
-  { icon:'💇', title:'Hair & Makeup',         desc:'ทรงผม เมคอัพ ให้เข้ากับลุค',     price:'฿890',  lessons:7,  tag:'New' },
+  { icon:'jewelry' as AppIconName, title:'Special Occasions',    desc:'เรียนรู้ Dress Code งานต่างๆ',    price:'฿1,290', lessons:8,  tag:'Popular' },
+  { icon:'spark' as AppIconName, title:'Personal Style',        desc:'ค้นพบสไตล์ส่วนตัวที่ไม่ซ้ำใคร', price:'฿1,890', lessons:12, tag:'New' },
+  { icon:'briefcase' as AppIconName, title:'Office & Career',       desc:'แต่งตัวให้ดูน่าเชื่อถือในงาน',   price:'฿1,490', lessons:10, tag:'Bestseller' },
+  { icon:'palette' as AppIconName, title:'Color Analysis',        desc:'เลือกสีที่เหมาะกับ skin tone',    price:'฿990',  lessons:6,  tag:'' },
+  { icon:'dress' as AppIconName, title:'Capsule Wardrobe',      desc:'ตู้เสื้อผ้าน้อยชิ้นแต่ครบครัน', price:'฿1,190', lessons:8,  tag:'' },
+  { icon:'hair' as AppIconName, title:'Hair & Makeup',         desc:'ทรงผม เมคอัพ ให้เข้ากับลุค',     price:'฿890',  lessons:7,  tag:'New' },
 ];
 
 export function CoursesScreen() {
@@ -59,7 +60,7 @@ export function CoursesScreen() {
       <div className="course-list">
         {COURSES.map(c=>(
           <div key={c.title} className="course-row">
-            <div className="cr-icon">{c.icon}</div>
+            <div className="cr-icon"><AppIcon name={c.icon} label={c.title} /></div>
             <div className="cr-body">
               <div className="cr-top">
                 <span className="cr-title">{c.title}</span>
