@@ -70,9 +70,9 @@ async def proxy_remove_bg(req: ProxyRequest):
             
             def _run_replicate():
                 client = replicate.Client(api_token=REPLICATE_API_TOKEN)
-                # Use the stable model alias instead of a specific hash to avoid 404s
+                # Use the new official Recraft-AI model (replaces deprecated rembg)
                 output = client.run(
-                    "replicate/rembg",
+                    "recraft-ai/recraft-remove-background",
                     input={"image": raw}
                 )
                 return output
