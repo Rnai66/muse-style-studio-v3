@@ -16,12 +16,15 @@ IS_RENDER = os.getenv("RENDER") == "true"
 RNAI_BASE_URL = "https://rnai-io.vercel.app/api/v1"
 RNAI_API_KEY = (os.getenv("VITE_RNAI_API_KEY") or "").strip()
 HF_TOKEN = (os.getenv("HUGGINGFACE_API_TOKEN") or "").strip()
+REPLICATE_API_TOKEN = (os.getenv("REPLICATE_API_TOKEN") or "").strip()
 
-# Cleanup common copy-paste errors (like VITE_RNAI_API_KEY= being inside the value)
+# Cleanup common copy-paste errors
 if RNAI_API_KEY.startswith("VITE_RNAI_API_KEY="):
     RNAI_API_KEY = RNAI_API_KEY.replace("VITE_RNAI_API_KEY=", "").strip()
 if HF_TOKEN.startswith("HUGGINGFACE_API_TOKEN="):
     HF_TOKEN = HF_TOKEN.replace("HUGGINGFACE_API_TOKEN=", "").strip()
+if REPLICATE_API_TOKEN.startswith("REPLICATE_API_TOKEN="):
+    REPLICATE_API_TOKEN = REPLICATE_API_TOKEN.replace("REPLICATE_API_TOKEN=", "").strip()
 
 HF_GEN_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell"
 HF_REMBG_URL = "https://api-inference.huggingface.co/models/briaai/RMBG-1.4"
@@ -47,20 +50,20 @@ async def proxy_remove_bg(req: ProxyRequest):
         logger.warning(f"RNAI platform call failed: {e}")
 
     # 2. Try Replicate (Powerful, stable, won't crash Render)
-    REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
     if REPLICATE_API_TOKEN:
         try:
             logger.info("Attempting Replicate fallback for background removal...")
             
-            # Clean base64 for Replicate
+            # Clean base64 for Replicate - Replicate expects the header
             raw = req.image
             if not raw.startswith("data:"):
-                # Replicate input usually likes data URLs or URLs
                 raw = f"data:image/png;base64,{raw}"
             
-            # Use synchronous replicate call inside to_thread to avoid blocking
+            # Use synchronous replicate call inside to_thread
             def _run_replicate():
-                output = replicate.run(
+                # Setting token explicitly to avoid env issues
+                client = replicate.Client(api_token=REPLICATE_API_TOKEN)
+                output = client.run(
                     "cjwbw/rembg:fb8a0038258f4848510ee37f7a39482d2d8216cfa39ce37c2339f9571b0318d0",
                     input={"image": raw}
                 )
@@ -68,9 +71,10 @@ async def proxy_remove_bg(req: ProxyRequest):
 
             result_url = await asyncio.to_thread(_run_replicate)
             if result_url:
+                logger.info(f"✓ Replicate success: {result_url}")
                 return {"image": result_url}
         except Exception as e:
-            logger.error(f"Replicate fallback failed: {e}")
+            logger.error(f"Replicate fallback failed: {str(e)}")
 
     # 3. Try direct Hugging Face
     if HF_TOKEN:
