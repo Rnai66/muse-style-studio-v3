@@ -70,17 +70,19 @@ async def proxy_remove_bg(req: ProxyRequest):
             
             def _run_replicate():
                 client = replicate.Client(api_token=REPLICATE_API_TOKEN)
-                # Switch to a much more stable, high-run model (21M runs)
+                # Verified public version hash
                 output = client.run(
-                    "851-labs/background-remover:a029dff38f72a1f044030619965f9cd00e28405ea673752e59e55720025cd03e",
+                    "851-labs/background-remover:a029dff38972b5fda4ec5d75d7d1cd25aeff621d2cf4946a41055d7db66b80bc",
                     input={"image": raw}
                 )
                 return output
 
             result_url = await asyncio.to_thread(_run_replicate)
             if result_url:
-                logger.info(f"✓ Replicate success: {result_url}")
-                return {"image": result_url}
+                # Replicate output can be a URL object, convert to string
+                final_url = str(result_url)
+                logger.info(f"✓ Replicate success: {final_url}")
+                return {"image": final_url}
             errors.append("Replicate: Returned empty result")
         except Exception as e:
             msg = f"Replicate failed: {str(e)}"
