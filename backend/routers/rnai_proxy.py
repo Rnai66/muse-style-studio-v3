@@ -64,7 +64,7 @@ async def proxy_remove_bg(req: ProxyRequest):
                 # Setting token explicitly to avoid env issues
                 client = replicate.Client(api_token=REPLICATE_API_TOKEN)
                 output = client.run(
-                    "cjwbw/rembg:fb8a0038258f4848510ee37f7a39482d2d8216cfa39ce37c2339f9571b0318d0",
+                    "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
                     input={"image": raw}
                 )
                 return output
