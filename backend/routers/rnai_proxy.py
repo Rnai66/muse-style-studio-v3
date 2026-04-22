@@ -70,9 +70,9 @@ async def proxy_remove_bg(req: ProxyRequest):
             
             def _run_replicate():
                 client = replicate.Client(api_token=REPLICATE_API_TOKEN)
-                # Replicate Latest Stable Model cjwbw/rembg
+                # Switch to a much more stable, high-run model (21M runs)
                 output = client.run(
-                    "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
+                    "851-labs/background-remover:a029dff38f72a1f044030619965f9cd00e28405ea673752e59e55720025cd03e",
                     input={"image": raw}
                 )
                 return output
