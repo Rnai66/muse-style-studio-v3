@@ -19,7 +19,7 @@ export function useRemoveBg() {
     setError(null);
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // RNAI is fast, 60s is enough
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // Increased to 3m for Render cold starts
 
       try {
         const res = await fetch(PROXY_URL, {

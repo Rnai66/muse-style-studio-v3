@@ -3,12 +3,15 @@ import httpx
 import base64
 import asyncio
 import logging
+import replicate
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+IS_RENDER = os.getenv("RENDER") == "true"
 
 RNAI_BASE_URL = "https://rnai-io.vercel.app/api/v1"
 RNAI_API_KEY = os.getenv("VITE_RNAI_API_KEY")
@@ -27,7 +30,43 @@ async def proxy_remove_bg(req: ProxyRequest):
     if not req.image:
         raise HTTPException(status_code=400, detail="Missing image data")
     
-    # 1. Try direct Hugging Face
+    # 1. Try RNAI platform first (User's preferred choice)
+    try:
+        if RNAI_API_KEY:
+            logger.info("Attempting RNAI platform call for background removal...")
+            res = await forward_to_rnai("remove-background", req)
+            if res and "image" in res:
+                return res
+    except Exception as e:
+        logger.warning(f"RNAI platform call failed: {e}")
+
+    # 2. Try Replicate (Powerful, stable, won't crash Render)
+    REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
+    if REPLICATE_API_TOKEN:
+        try:
+            logger.info("Attempting Replicate fallback for background removal...")
+            
+            # Clean base64 for Replicate
+            raw = req.image
+            if not raw.startswith("data:"):
+                # Replicate input usually likes data URLs or URLs
+                raw = f"data:image/png;base64,{raw}"
+            
+            # Use synchronous replicate call inside to_thread to avoid blocking
+            def _run_replicate():
+                output = replicate.run(
+                    "cjwbw/rembg:fb8a0038258f4848510ee37f7a39482d2d8216cfa39ce37c2339f9571b0318d0",
+                    input={"image": raw}
+                )
+                return output
+
+            result_url = await asyncio.to_thread(_run_replicate)
+            if result_url:
+                return {"image": result_url}
+        except Exception as e:
+            logger.error(f"Replicate fallback failed: {e}")
+
+    # 3. Try direct Hugging Face
     if HF_TOKEN:
         try:
             logger.info("Attempting direct Hugging Face call for background removal...")
@@ -49,32 +88,26 @@ async def proxy_remove_bg(req: ProxyRequest):
         except Exception as e:
             logger.error(f"HF direct call exception: {e}")
 
-    # 2. Try RNAI platform
-    try:
-        if RNAI_API_KEY:
-            logger.info("Attempting RNAI platform call for background removal...")
-            res = await forward_to_rnai("remove-background", req)
-            if res and "image" in res:
-                return res
-    except Exception as e:
-        logger.warning(f"RNAI platform call failed: {e}")
-
-    # 3. Final Fallback: Local rembg (Reliable but uses server CPU)
-    try:
-        logger.info("Falling back to LOCAL background removal engine...")
-        from .rembg import _process_rembg
-        raw = req.image
-        if "," in raw:
-            raw = raw.split(",", 1)[1]
-        img_bytes = base64.b64decode(raw)
-        
-        # Run local rembg in a thread
-        result_bytes = await asyncio.to_thread(_process_rembg, img_bytes)
-        b64_out = base64.b64encode(result_bytes).decode()
-        return {"image": f"data:image/png;base64,{b64_out}"}
-    except Exception as e:
-        logger.error(f"Local fallback failed: {e}")
-        raise HTTPException(status_code=500, detail=f"All background removal methods failed: {str(e)}")
+    # Final Fallback: Local rembg (Reliable but uses server CPU/RAM)
+    if not IS_RENDER:
+        try:
+            logger.info("Falling back to LOCAL background removal engine...")
+            from .rembg import _process_rembg
+            raw = req.image
+            if "," in raw:
+                raw = raw.split(",", 1)[1]
+            img_bytes = base64.b64decode(raw)
+            
+            # Run local rembg in a thread
+            result_bytes = await asyncio.to_thread(_process_rembg, img_bytes)
+            b64_out = base64.b64encode(result_bytes).decode()
+            return {"image": f"data:image/png;base64,{b64_out}"}
+        except Exception as e:
+            logger.error(f"Local fallback failed: {e}")
+            raise HTTPException(status_code=500, detail=f"All background removal methods failed (including local): {str(e)}")
+    else:
+        logger.warning("Local fallback skipped on Render to prevent OOM crash.")
+        raise HTTPException(status_code=503, detail="AI services are temporarily busy. Please try again in 1 minute.")
 
 @router.post("/generate")
 async def proxy_generate(req: ProxyRequest):

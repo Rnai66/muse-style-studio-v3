@@ -22,7 +22,9 @@ export function useRnai() {
   const generate = useCallback(async (prompt: string) => {
     /* API Key check removed - handled by backend */
 
-    setState({ status: 'running', resultUrl: null, error: null });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
+
     try {
       const res = await fetch(`${PROXY_BASE}/generate`, {
         method: 'POST',
@@ -30,7 +32,9 @@ export function useRnai() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!res.ok) throw new Error(`RNAI Error (${res.status})`);
       const data = await res.json();
@@ -46,7 +50,9 @@ export function useRnai() {
   const edit = useCallback(async (image: string, prompt: string, mask?: string) => {
     /* API Key check removed - handled by backend */
 
-    setState({ status: 'running', resultUrl: null, error: null });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
+
     try {
       const body: any = { image, prompt };
       if (mask) body.mask = mask;
@@ -57,7 +63,9 @@ export function useRnai() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!res.ok) throw new Error(`RNAI Error (${res.status})`);
       const data = await res.json();
