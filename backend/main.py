@@ -65,7 +65,7 @@ async def favicon():
 async def health():
     return {
         "status": "ok",
-        "version": "v1.0.2",
+        "version": "v1.0.3",
         "replicate": bool(os.getenv("REPLICATE_API_TOKEN")),
         "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
     }

@@ -68,55 +68,41 @@ async def proxy_remove_bg(req: ProxyRequest):
             if not raw.startswith("data:"):
                 raw = f"data:image/png;base64,{raw}"
             
-            def _run_replicate():
+            def _run_replicate(model_handle: str):
                 client = replicate.Client(api_token=REPLICATE_API_TOKEN)
-                # Use the new official Recraft-AI model (replaces deprecated rembg)
-                output = client.run(
-                    "recraft-ai/recraft-remove-background",
-                    input={"image": raw}
-                )
+                output = client.run(model_handle, input={"image": raw})
                 return output
 
-            result_url = await asyncio.to_thread(_run_replicate)
-            if result_url:
-                # Replicate output can be a URL object, convert to string
-                final_url = str(result_url)
-                logger.info(f"✓ Replicate success: {final_url}")
-                return {"image": final_url}
-            errors.append("Replicate: Returned empty result")
+            # Replicate Tier 1: 851-labs (Ultra fast, 21M runs)
+            try:
+                logger.info("Replicate Tier 1: 851-labs...")
+                result_url = await asyncio.to_thread(_run_replicate, "851-labs/background-remover:a029dff38972b5fda4ec5d75d7d1cd25aeff621d2cf4946a41055d7db66b80bc")
+                if result_url:
+                    final_url = str(result_url)
+                    logger.info(f"✓ Replicate T1 success: {final_url}")
+                    return {"image": final_url}
+            except Exception as e1:
+                logger.warning(f"Replicate T1 failed: {str(e1)}")
+                errors.append(f"Replicate T1 failed: {str(e1)}")
+
+            # Replicate Tier 2: recraft-ai (Official)
+            try:
+                logger.info("Replicate Tier 2: recraft-ai...")
+                result_url = await asyncio.to_thread(_run_replicate, "recraft-ai/recraft-remove-background")
+                if result_url:
+                    final_url = str(result_url)
+                    logger.info(f"✓ Replicate T2 success: {final_url}")
+                    return {"image": final_url}
+            except Exception as e2:
+                logger.warning(f"Replicate T2 failed: {str(e2)}")
+                errors.append(f"Replicate T2 failed: {str(e2)}")
+
         except Exception as e:
-            msg = f"Replicate failed: {str(e)}"
-            logger.error(msg)
-            errors.append(msg)
+            errors.append(f"Replicate Exception: {str(e)}")
     else:
         errors.append("Replicate: API Token missing")
 
-    # 3. Try direct Hugging Face
-    if HF_TOKEN:
-        try:
-            logger.info("Attempting Hugging Face fallback...")
-            raw = req.image
-            if "," in raw:
-                raw = raw.split(",", 1)[1]
-            img_bytes = base64.b64decode(raw)
-
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                res = await client.post(
-                    HF_REMBG_URL,
-                    content=img_bytes,
-                    headers={"Authorization": f"Bearer {HF_TOKEN}"}
-                )
-                if res.status_code == 200:
-                    b64_out = base64.b64encode(res.content).decode()
-                    return {"image": f"data:image/png;base64,{b64_out}"}
-                msg = f"HF failed ({res.status_code}): {res.text[:100]}"
-                errors.append(msg)
-        except Exception as e:
-            errors.append(f"HF Exception: {str(e)}")
-    else:
-        errors.append("HF: Token missing")
-
-    # Final Fallback: Local rembg (Reliable but uses server RAM)
+    # 3. Final Fallback: Local rembg (Reliable but uses server RAM)
     if not IS_RENDER:
         try:
             logger.info("Falling back to LOCAL engine...")
@@ -136,7 +122,7 @@ async def proxy_remove_bg(req: ProxyRequest):
             status_code=503, 
             detail={
                 "message": "AI services are currently busy at the source. Please check diagnostics.",
-                "version": "v1.0.2",
+                "version": "v1.0.3",
                 "diagnostics": errors
             }
         )
