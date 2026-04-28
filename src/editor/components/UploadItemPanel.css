@@ -109,10 +109,46 @@
   transition: all .2s;
   letter-spacing: .03em;
   min-height: 40px;
+  white-space: nowrap;
 }
 .uip-rembg-btn:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(201,169,110,0.3); transform: translateY(-1px); }
 .uip-rembg-btn:disabled { opacity: .5; cursor: not-allowed; }
 .uip-rembg-btn.loading { opacity: .8; }
+
+/* ── Cancel button ── */
+.uip-cancel-btn {
+  padding: .65rem .55rem;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,.7);
+  font-size: .8rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all .2s;
+  min-height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.uip-cancel-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.2); }
+
+/* ── Progress bar ── */
+.uip-progress-bar {
+  height: 4px;
+  background: rgba(201,169,110,.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: .5rem;
+}
+.uip-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%);
+  border-radius: 2px;
+  transition: width .3s ease;
+  box-shadow: 0 0 8px rgba(201,169,110,0.5);
+}
 
 .uip-restore-btn {
   flex: 1;
@@ -156,7 +192,21 @@
   animation: uip-spin .7s linear infinite;
   flex-shrink: 0;
 }
-@keyframes uip-spin { to { transform: rotate(360deg); } }
+
+.uip-spinner-inline {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(201,169,110,.2);
+  border-top-color: var(--gold);
+  animation: uip-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes uip-spin { 
+  to { transform: rotate(360deg); } 
+}
 
 /* Error */
 .uip-error {
@@ -168,6 +218,62 @@
   color: #f4a5a0;
   font-family: var(--font-sans);
   border-radius: 8px;
+}
+
+/* Enhanced error box */
+.uip-error-box {
+  background: linear-gradient(135deg, rgba(212,130,122,.08) 0%, rgba(212,130,122,.04) 100%);
+  border: 1px solid rgba(212,130,122,.35);
+  border-radius: 10px;
+  padding: .85rem;
+  border-left: 3px solid rgba(212,130,122,.6);
+}
+.uip-error-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .4rem;
+}
+.uip-error-header svg { 
+  color: #f4a5a0; 
+  font-size: .9rem; 
+  flex-shrink: 0; 
+}
+.uip-error-title {
+  font-size: .75rem;
+  font-weight: 700;
+  color: #f4a5a0;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-family: var(--font-sans);
+}
+.uip-error-message {
+  margin: 0;
+  font-size: .8rem;
+  color: rgba(244,165,160,.85);
+  font-family: var(--font-sans);
+  line-height: 1.4;
+  margin-bottom: .5rem;
+}
+.uip-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .7rem;
+  background: rgba(212,130,122,.15);
+  border: 1px solid rgba(212,130,122,.35);
+  border-radius: 6px;
+  color: #f4a5a0;
+  font-size: .75rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.uip-retry-btn:hover {
+  background: rgba(212,130,122,.25);
+  border-color: rgba(212,130,122,.5);
 }
 
 /* ── Form ── */
@@ -283,7 +389,10 @@
   font-size: .75rem;
   color: rgba(201,169,110,.8);
   font-family: var(--font-sans);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
   animation: uip-pulse 2s ease-in-out infinite;
 }
 
@@ -297,21 +406,12 @@
   .uip-restore-btn,
   .uip-change-btn,
   .uip-add-btn,
-  .uip-reset-btn,
-  .uip-cat-btn {
-    transition: none;
+  .uip-reset-btn {
+    font-size: .75rem;
+    padding: .55rem .65rem;
   }
-
-  .uip-rembg-btn:hover:not(:disabled),
-  .uip-add-btn:hover,
-  .uip-reset-btn:hover,
-  .uip-cat-btn:hover {
-    transform: none;
-    box-shadow: none;
-    background: unset;
-  }
-
-  .uip-processing-hint {
-    animation: none;
+  
+  .uip-cat-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

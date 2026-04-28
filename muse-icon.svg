@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" fill="#0e0d0c" rx="24"/>
+  
+  <!-- Gold circle -->
+  <circle cx="64" cy="64" r="50" fill="#c9a96e" opacity="0.15"/>
+  
+  <!-- M shape (MUSE) -->
+  <text x="64" y="80" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#c9a96e" text-anchor="middle">M</text>
+  
+  <!-- Subtle gradient accent -->
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#c9a96e" stroke-width="1.5" opacity="0.3"/>
+</svg>

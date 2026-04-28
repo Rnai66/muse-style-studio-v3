@@ -117,7 +117,7 @@ This indicates the backend URL environment variable was not set during the Fireb
 #### 1. Health Check
 ```bash
 curl https://muse-backend-q8aa.onrender.com/health
-# Expected: {"status":"ok","replicate":true,"anthropic":true}
+# Expected: {"status":"ok","replicate":true,"rnai":true,"huggingface":true}
 ```
 
 #### 2. Small Image Test (~100KB)
@@ -208,7 +208,9 @@ VITE_BACKEND_URL=https://muse-backend-q8aa.onrender.com
 **Backend** (Render environment):
 ```
 REPLICATE_API_TOKEN=<your_token>
-ANTHROPIC_API_KEY=<your_key>
+VITE_RNAI_API_KEY=<your_key>
+HUGGINGFACE_API_TOKEN=<your_token>
+REDIS_URL=<your_redis_url>
 ```
 
 ## Rollback Plan

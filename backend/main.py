@@ -1,6 +1,6 @@
 """
 MUSE Style Studio — AI Backend
-FastAPI + Replicate API + Anthropic Claude
+FastAPI + Replicate API + RNAI + HuggingFace
 """
 import os
 import logging
@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import tryon, hairstyle, makeup, analyze, task_status, chat, rembg, avatar, rnai_proxy
+from routers import tryon, hairstyle, makeup, task_status, rembg, avatar, rnai_proxy
 
 load_dotenv()
 
@@ -51,9 +51,7 @@ app.add_middleware(
 app.include_router(tryon.router,       prefix="/api/tryon",   tags=["Virtual Try-On"])
 app.include_router(hairstyle.router,   prefix="/api/hair",    tags=["Hair Styling"])
 app.include_router(makeup.router,      prefix="/api/makeup",  tags=["Makeup"])
-app.include_router(analyze.router,     prefix="/api/analyze", tags=["Body Analysis"])
 app.include_router(task_status.router, prefix="/api/tasks",   tags=["Task Queue"])
-app.include_router(chat.router,        prefix="/api/chat",    tags=["AI Chat"])
 app.include_router(rembg.router,       prefix="/api/rembg",   tags=["Background Removal"])
 app.include_router(avatar.router,      prefix="/api/avatar",  tags=["Avatar"])
 app.include_router(rnai_proxy.router,  prefix="/api/rnai",    tags=["RNAI Proxy"])
@@ -74,13 +72,11 @@ async def startup_event():
     replicate_token = bool(os.getenv("REPLICATE_API_TOKEN"))
     rnai_key = bool(os.getenv("VITE_RNAI_API_KEY"))
     hf_token = bool(os.getenv("HUGGINGFACE_API_TOKEN"))
-    anthropic_key = bool(os.getenv("ANTHROPIC_API_KEY"))
     
     logger.info(f"API Credentials:")
     logger.info(f"  - REPLICATE_API_TOKEN: {'✓' if replicate_token else '✗'}")
     logger.info(f"  - VITE_RNAI_API_KEY: {'✓' if rnai_key else '✗'}")
     logger.info(f"  - HUGGINGFACE_API_TOKEN: {'✓' if hf_token else '✗'}")
-    logger.info(f"  - ANTHROPIC_API_KEY: {'✓' if anthropic_key else '✗'}")
     
     # Background removal availability
     available_methods = []
@@ -116,7 +112,6 @@ async def health():
         "version": "v1.0.4",
         "environment": "render" if is_render else "local",
         "services": {
-            "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
             "replicate": replicate_token,
             "rnai": rnai_key,
             "huggingface": hf_token,

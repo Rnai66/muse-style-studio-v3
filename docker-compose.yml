@@ -52,4 +52,3 @@ services:
       - backend
     environment:
       - VITE_BACKEND_URL=http://localhost:8000
-      - VITE_ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}

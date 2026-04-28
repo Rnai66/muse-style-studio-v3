@@ -11,7 +11,7 @@
 | Frontend | React 18 + TypeScript |
 | Build | Vite 5 |
 | Mobile | Capacitor 6 |
-| AI | Anthropic Claude API (Vision) |
+| AI | RNAI + HuggingFace + Replicate |
 | Routing | React Router v6 |
 | Camera | @capacitor/camera |
 | Haptics | @capacitor/haptics |
@@ -27,15 +27,17 @@
 npm install
 ```
 
-### 2. ตั้งค่า API Key
+### 2. ตั้งค่า Environment
 
 ```bash
 cp .env.example .env.local
 ```
 
-แก้ไข `.env.local`:
+แก้ไข `.env.local` โดยเพิ่ม API keys:
 ```
-VITE_ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxx
+REPLICATE_API_TOKEN=your_token_here
+VITE_RNAI_API_KEY=your_token_here
+HUGGINGFACE_API_TOKEN=your_token_here
 ```
 
 ### 3. รันบน Web (dev mode)
@@ -118,7 +120,7 @@ muse-style-studio/
 │   │   ├── BottomNav.tsx      # Navigation bar
 │   │   └── LoadingScreen.tsx  # Splash/loading
 │   ├── hooks/
-│   │   ├── useAIStylist.ts    # Claude API + chat history
+│   │   ├── useAIStylist.ts    # AI Stylist API + chat history
 │   │   └── useCamera.ts       # Capacitor Camera plugin
 │   ├── pages/
 │   │   ├── HomeScreen.tsx     # หน้าหลัก
