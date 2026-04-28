@@ -10,6 +10,7 @@ const PROXY_URL = `${BACKEND_URL}/api/rnai/remove-background`;
 const LOCAL_REMBG_URL = `${BACKEND_URL}/api/rembg/`;
 const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
 const MAX_PROXY_ATTEMPTS = 3;
+const REMOVE_BG_TIMEOUT_MS = 8 * 60 * 1000; // 8 minutes (Render cold start + model load)
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -101,7 +102,7 @@ export function useRemoveBg() {
     const controller = abortControllerRef.current;
     
     try {
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3m for Render cold starts
+      const timeoutId = setTimeout(() => controller.abort(), REMOVE_BG_TIMEOUT_MS);
       setProgress(10); // Show we started
 
       try {
@@ -143,18 +144,7 @@ export function useRemoveBg() {
           await wait(900 * attempt); // progressive backoff
         }
 
-        // Browser-native fallback (does not rely on backend providers).
-        try {
-          setProgress(74);
-          const browserResult = await removeBgInBrowser(imageDataUrl, setProgress);
-          clearTimeout(timeoutId);
-          setProgress(100);
-          return browserResult;
-        } catch (browserErr) {
-          console.warn('Browser fallback failed, trying local backend fallback:', browserErr);
-        }
-
-        // Final fallback from frontend side: call local rembg endpoint directly.
+        // First fallback: call local rembg endpoint directly.
         setProgress(70);
         const fallbackRes = await fetch(LOCAL_REMBG_URL, {
           method: 'POST',
@@ -169,8 +159,17 @@ export function useRemoveBg() {
 
         if (!fallbackRes.ok) {
           const parsedError = await parseErrorResponse(fallbackRes);
-          const prefix = usedRetry ? 'ลองหลายรอบแล้วยังไม่สำเร็จ' : 'ลบพื้นหลังไม่สำเร็จ';
-          throw new Error(`${prefix}: ${lastProxyError || parsedError.message}`);
+          // Last-resort fallback: browser-native model (does not rely on backend providers).
+          try {
+            setProgress(74);
+            const browserResult = await removeBgInBrowser(imageDataUrl, setProgress);
+            setProgress(100);
+            return browserResult;
+          } catch (browserErr) {
+            console.warn('Browser fallback failed:', browserErr);
+            const prefix = usedRetry ? 'ลองหลายรอบแล้วยังไม่สำเร็จ' : 'ลบพื้นหลังไม่สำเร็จ';
+            throw new Error(`${prefix}: ${lastProxyError || parsedError.message}`);
+          }
         }
 
         const fallbackData = await fallbackRes.json();
@@ -183,7 +182,7 @@ export function useRemoveBg() {
       } catch (e: unknown) {
         clearTimeout(timeoutId);
         if ((e as DOMException)?.name === 'AbortError') {
-          throw new Error('ยกเลิกการประมวลผล หรือ เชื่อมต่อล้มเหลว - กรุณาลองใหม่อีกครั้ง');
+          throw new Error('ใช้เวลาประมวลผลนานกว่าที่กำหนด กรุณาลองรูปที่เล็กลง หรือรอสักครู่แล้วลองใหม่');
         }
         throw e;
       }
