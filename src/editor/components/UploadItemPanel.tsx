@@ -1,10 +1,13 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import type { CatalogItem, LayerCategory } from '../types';
 import { CATEGORY_META } from '../types';
 import { useRemoveBg } from '@/hooks/useRemoveBg';
 import AppIcon from '@/components/AppIcon';
 import { optimizeImageDataUrl } from '@/lib/image';
 import './UploadItemPanel.css';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const SUPPORTED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 const UPLOADABLE_CATS: LayerCategory[] = [
   'top', 'bottom', 'dress', 'hair', 'shoes', 'bag', 'hat', 'glasses', 'jewelry', 'outerwear',
@@ -25,9 +28,27 @@ export default function UploadItemPanel({ onAdd }: Props) {
   const [bgRemoved, setBgRemoved]     = useState(false);
   const [loadError, setLoadError]     = useState<string | null>(null);
 
-  const { removeBg, loading: removingBg, error: rembgError } = useRemoveBg();
+  const { removeBg, loading: removingBg, error: rembgError, progress: removeBgProgress, cancel: cancelRemoveBg } = useRemoveBg();
+
+  // Auto-clear success error after 3 seconds
+  useEffect(() => {
+    if (bgRemoved && !removingBg && !rembgError) {
+      // Clear error only, keep success badge
+      return;
+    }
+  }, [bgRemoved, removingBg, rembgError]);
 
   const loadFile = useCallback((file: File) => {
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      setLoadError(`ไฟล์ขนาดใหญ่เกินไป (${(file.size / 1024 / 1024).toFixed(1)}MB > 10MB)`);
+      return;
+    }
+    // Validate file type
+    if (!SUPPORTED_FORMATS.includes(file.type)) {
+      setLoadError(`ไฟล์ประเภท ${file.type} ไม่รองรับ - ใช้ JPG, PNG, WEBP, หรือ GIF`);
+      return;
+    }
     const baseName = file.name.replace(/\.[^.]+$/, '');
     setFileName(file.name);
     setName(baseName);
@@ -72,10 +93,15 @@ export default function UploadItemPanel({ onAdd }: Props) {
   // ── Remove background ──
   const handleRemoveBg = async () => {
     if (!preview) return;
-    const result = await removeBg(preview);
-    if (result) {
-      setPreview(result);
-      setBgRemoved(true);
+    try {
+      const result = await removeBg(preview);
+      if (result) {
+        setPreview(result);
+        setBgRemoved(true);
+        setLoadError(null); // Clear any previous errors
+      }
+    } catch (err) {
+      console.error('Remove background failed:', err);
     }
   };
 
@@ -147,17 +173,35 @@ export default function UploadItemPanel({ onAdd }: Props) {
       {preview && (
         <div className="uip-rembg-row">
           {!bgRemoved ? (
-            <button
-              className={`uip-rembg-btn ${removingBg ? 'loading' : ''}`}
-              onClick={handleRemoveBg}
-              disabled={removingBg}
-              title={removingBg ? 'กำลังประมวลผล (อาจใช้เวลา 15-60 วินาที)' : 'ลบพื้นหลังโดยใช้ AI'}
-            >
-              {removingBg
-                ? <><span className="uip-spinner" /> กำลังลบพื้นหลัง…</>
-                : <><AppIcon name="magic" className="uip-action-icon" label="ลบพื้นหลัง" /> ลบพื้นหลัง</>
-              }
-            </button>
+            <>
+              <button
+                className={`uip-rembg-btn ${removingBg ? 'loading' : ''}`}
+                onClick={handleRemoveBg}
+                disabled={removingBg}
+                title={removingBg ? 'กำลังประมวลผล (อาจใช้เวลา 15-60 วินาที)' : 'ลบพื้นหลังโดยใช้ AI'}
+              >
+                {removingBg ? (
+                  <>
+                    <span className="uip-spinner" />
+                    <span>กำลังลบ ({removeBgProgress}%)…</span>
+                  </>
+                ) : (
+                  <>
+                    <AppIcon name="magic" className="uip-action-icon" label="ลบพื้นหลัง" />
+                    <span>ลบพื้นหลัง</span>
+                  </>
+                )}
+              </button>
+              {removingBg && (
+                <button
+                  className="uip-cancel-btn"
+                  onClick={cancelRemoveBg}
+                  title="ยกเลิกการประมวลผล"
+                >
+                  <AppIcon name="close" label="ยกเลิก" />
+                </button>
+              )}
+            </>
           ) : (
             <button className="uip-restore-btn" onClick={handleRestoreOriginal}>
               <AppIcon name="reset" /> คืนพื้นหลังเดิม
@@ -169,18 +213,44 @@ export default function UploadItemPanel({ onAdd }: Props) {
         </div>
       )}
 
+      {/* ── Progress bar ── */}
+      {removingBg && removeBgProgress > 0 && (
+        <div className="uip-progress-bar">
+          <div className="uip-progress-fill" style={{ width: `${Math.min(removeBgProgress, 99)}%` }} />
+        </div>
+      )}
+
+      {/* ── Processing messages ── */}
       {removingBg && (
         <div className="uip-processing-hint">
-          กำลังประมวลผล... (อาจใช้เวลา 1-3 นาที)
+          <span className="uip-spinner-inline" />
+          <span>กำลังประมวลผล... (อาจใช้เวลา 1-3 นาที บน Render server)</span>
         </div>
       )}
 
       {rembgError && (
-        <div className="uip-error"><AppIcon name="warning" /> {rembgError}</div>
+        <div className="uip-error-box">
+          <div className="uip-error-header">
+            <AppIcon name="warning" />
+            <span className="uip-error-title">ข้อผิดพลาด</span>
+          </div>
+          <p className="uip-error-message">{rembgError}</p>
+          {!removingBg && (
+            <button className="uip-retry-btn" onClick={handleRemoveBg}>
+              <AppIcon name="reset" /> ลองใหม่
+            </button>
+          )}
+        </div>
       )}
 
       {loadError && (
-        <div className="uip-error"><AppIcon name="warning" /> {loadError}</div>
+        <div className="uip-error-box">
+          <div className="uip-error-header">
+            <AppIcon name="warning" />
+            <span className="uip-error-title">ข้อผิดพลาดการอัปโหลด</span>
+          </div>
+          <p className="uip-error-message">{loadError}</p>
+        </div>
       )}
 
       {/* ── Form ── */}

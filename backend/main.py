@@ -3,6 +3,7 @@ MUSE Style Studio — AI Backend
 FastAPI + Replicate API + Anthropic Claude
 """
 import os
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -11,9 +12,16 @@ from routers import tryon, hairstyle, makeup, analyze, task_status, chat, rembg,
 
 load_dotenv()
 
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 app = FastAPI(
     title="MUSE Style Studio API",
-    version="2.0.1",
+    version="2.0.2",
     description="AI-powered fashion try-on and styling backend",
 )
 
@@ -51,6 +59,41 @@ app.include_router(avatar.router,      prefix="/api/avatar",  tags=["Avatar"])
 app.include_router(rnai_proxy.router,  prefix="/api/rnai",    tags=["RNAI Proxy"])
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Log available services on startup"""
+    logger.info("=" * 60)
+    logger.info("🚀 MUSE Style Studio Backend - Startup Diagnostics")
+    logger.info("=" * 60)
+    
+    # Check environment
+    is_render = os.getenv("RENDER") == "true"
+    logger.info(f"Environment: {'RENDER (Production)' if is_render else 'LOCAL'}")
+    
+    # Check API credentials
+    replicate_token = bool(os.getenv("REPLICATE_API_TOKEN"))
+    rnai_key = bool(os.getenv("VITE_RNAI_API_KEY"))
+    hf_token = bool(os.getenv("HUGGINGFACE_API_TOKEN"))
+    anthropic_key = bool(os.getenv("ANTHROPIC_API_KEY"))
+    
+    logger.info(f"API Credentials:")
+    logger.info(f"  - REPLICATE_API_TOKEN: {'✓' if replicate_token else '✗'}")
+    logger.info(f"  - VITE_RNAI_API_KEY: {'✓' if rnai_key else '✗'}")
+    logger.info(f"  - HUGGINGFACE_API_TOKEN: {'✓' if hf_token else '✗'}")
+    logger.info(f"  - ANTHROPIC_API_KEY: {'✓' if anthropic_key else '✗'}")
+    
+    # Background removal availability
+    available_methods = []
+    if rnai_key:
+        available_methods.append("RNAI Platform")
+    if replicate_token:
+        available_methods.append("Replicate")
+    available_methods.append("Local rembg")
+    
+    logger.info(f"Background Removal Methods Available: {', '.join(available_methods) if available_methods else 'NONE'}")
+    logger.info("=" * 60)
+
+
 @app.get("/")
 async def root():
     return {
@@ -63,11 +106,23 @@ async def favicon():
 
 @app.get("/health")
 async def health():
+    is_render = os.getenv("RENDER") == "true"
+    replicate_token = bool(os.getenv("REPLICATE_API_TOKEN"))
+    rnai_key = bool(os.getenv("VITE_RNAI_API_KEY"))
+    hf_token = bool(os.getenv("HUGGINGFACE_API_TOKEN"))
+    
     return {
         "status": "ok",
-        "version": "v1.0.3",
-        "replicate": bool(os.getenv("REPLICATE_API_TOKEN")),
-        "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "version": "v1.0.4",
+        "environment": "render" if is_render else "local",
+        "services": {
+            "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
+            "replicate": replicate_token,
+            "rnai": rnai_key,
+            "huggingface": hf_token,
+            "local_rembg": True,
+        },
+        "bg_removal_available": True,
     }
 
 

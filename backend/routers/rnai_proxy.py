@@ -102,30 +102,40 @@ async def proxy_remove_bg(req: ProxyRequest):
     else:
         errors.append("Replicate: API Token missing")
 
-    # 3. Final Fallback: Local rembg (Reliable but uses server RAM)
-    if not IS_RENDER:
-        try:
-            logger.info("Falling back to LOCAL engine...")
-            from .rembg import _process_rembg
-            raw = req.image
-            if "," in raw: raw = raw.split(",", 1)[1]
-            img_bytes = base64.b64decode(raw)
-            result_bytes = await asyncio.to_thread(_process_rembg, img_bytes)
-            b64_out = base64.b64encode(result_bytes).decode()
-            return {"image": f"data:image/png;base64,{b64_out}"}
-        except Exception as e:
-            errors.append(f"Local failed: {str(e)}")
-            raise HTTPException(status_code=500, detail={"message": "All methods failed", "diagnostics": errors})
-    else:
-        logger.warning(f"Production safety skip. Errors: {errors}")
+    # 3. Final Fallback: Local rembg
+    # Keep this enabled in production as a last-resort path when upstream services fail.
+    try:
+        logger.info("Falling back to LOCAL engine...")
+        from .rembg import _process_rembg
+        raw = req.image
+        if "," in raw:
+            raw = raw.split(",", 1)[1]
+        img_bytes = base64.b64decode(raw)
+
+        local_error: Optional[Exception] = None
+        for attempt in (1, 2):
+            try:
+                result_bytes = await asyncio.to_thread(_process_rembg, img_bytes)
+                b64_out = base64.b64encode(result_bytes).decode()
+                return {"image": f"data:image/png;base64,{b64_out}"}
+            except Exception as e_local:
+                local_error = e_local
+                logger.warning(f"Local rembg attempt {attempt} failed: {e_local}")
+                if attempt == 1:
+                    await asyncio.sleep(1.5)
+
+        errors.append(f"Local failed: {str(local_error)}")
+        logger.warning(f"All background removal methods failed. Errors: {errors}")
         raise HTTPException(
-            status_code=503, 
+            status_code=503,
             detail={
-                "message": "AI services are currently busy at the source. Please check diagnostics.",
-                "version": "v1.0.3",
+                "message": "AI services are currently busy at the source. Please try again in a moment.",
+                "version": "v1.0.4",
                 "diagnostics": errors
             }
         )
+    except HTTPException:
+        raise
 
 @router.post("/generate")
 async def proxy_generate(req: ProxyRequest):

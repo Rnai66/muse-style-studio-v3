@@ -28,6 +28,7 @@ class RemoveBgRequest(BaseModel):
 
 # ── Global model cache to avoid reloading ──
 _rembg_model = None
+REMBG_MODEL_NAME = (os.getenv("REMBG_MODEL_NAME") or "u2netp").strip()
 
 def _load_rembg_model():
     """Lazy load rembg model once and cache it."""
@@ -36,11 +37,11 @@ def _load_rembg_model():
         logger.info("Loading rembg ONNX models... (first time only, ~30-45s)")
         try:
             from rembg import new_session, remove
-            # Pre-download session to avoid timeout on first request
-            # Using u2net_human_seg for faster processing on low-memory systems
+            # Pre-download session to avoid timeout on first request.
+            # Use lightweight default model for Render free-tier memory constraints.
             logger.info("Creating ONNX session with CPU-only execution...")
-            _rembg_model = new_session(model_name="u2net_human_seg", providers=["CPUExecutionProvider"])
-            logger.info("✓ rembg models loaded successfully")
+            _rembg_model = new_session(model_name=REMBG_MODEL_NAME, providers=["CPUExecutionProvider"])
+            logger.info(f"✓ rembg model loaded successfully: {REMBG_MODEL_NAME}")
         except Exception as e:
             logger.error(f"Failed to load rembg: {e}", exc_info=True)
             _rembg_model = False
