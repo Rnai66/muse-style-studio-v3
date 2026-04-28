@@ -13,6 +13,31 @@ const MAX_PROXY_ATTEMPTS = 3;
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('ไม่สามารถแปลงผลลัพธ์จาก browser AI ได้'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function removeBgInBrowser(imageDataUrl: string, onProgress: (value: number) => void): Promise<string> {
+  const mod = await import('@imgly/background-removal');
+  const removeBackground = mod.removeBackground ?? mod.default;
+  const blob = await removeBackground(imageDataUrl, {
+    device: 'cpu',
+    model: 'isnet_quint8',
+    progress: (_key: string, current: number, total: number) => {
+      if (!total) return;
+      const ratio = Math.min(1, Math.max(0, current / total));
+      // Map browser fallback progress to 74-98%
+      onProgress(74 + Math.floor(ratio * 24));
+    },
+  });
+  return blobToDataUrl(blob);
+}
+
 function getFriendlyError(rawMessage: string, diagnostics: string[] = []): string {
   const corpus = `${rawMessage}\n${diagnostics.join('\n')}`.toLowerCase();
 
@@ -118,7 +143,18 @@ export function useRemoveBg() {
           await wait(900 * attempt); // progressive backoff
         }
 
-        // Last fallback from frontend side: call local rembg endpoint directly.
+        // Browser-native fallback (does not rely on backend providers).
+        try {
+          setProgress(74);
+          const browserResult = await removeBgInBrowser(imageDataUrl, setProgress);
+          clearTimeout(timeoutId);
+          setProgress(100);
+          return browserResult;
+        } catch (browserErr) {
+          console.warn('Browser fallback failed, trying local backend fallback:', browserErr);
+        }
+
+        // Final fallback from frontend side: call local rembg endpoint directly.
         setProgress(70);
         const fallbackRes = await fetch(LOCAL_REMBG_URL, {
           method: 'POST',
@@ -134,7 +170,7 @@ export function useRemoveBg() {
         if (!fallbackRes.ok) {
           const parsedError = await parseErrorResponse(fallbackRes);
           const prefix = usedRetry ? 'ลองหลายรอบแล้วยังไม่สำเร็จ' : 'ลบพื้นหลังไม่สำเร็จ';
-          throw new Error(`${prefix}: ${parsedError.message}`);
+          throw new Error(`${prefix}: ${lastProxyError || parsedError.message}`);
         }
 
         const fallbackData = await fallbackRes.json();

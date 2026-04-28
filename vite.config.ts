@@ -14,8 +14,8 @@ export default defineConfig({
     // Capacitor ต้องการ relative paths
     assetsDir: 'assets',
     sourcemap: false,
-    // Target iOS Safari (Capacitor WKWebView ≥ iOS 14)
-    target: ['es2015', 'safari14'],
+    // Needed for ONNX runtime bundles (BigInt literals)
+    target: ['es2020', 'safari15'],
     // Warn ถ้า chunk ใหญ่กว่า 600kb
     chunkSizeWarningLimit: 600,
     rollupOptions: {
