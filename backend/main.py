@@ -87,6 +87,18 @@ async def startup_event():
     available_methods.append("Local rembg")
     
     logger.info(f"Background Removal Methods Available: {', '.join(available_methods) if available_methods else 'NONE'}")
+    
+    # Check rembg model preloading status
+    try:
+        from routers.rembg import _load_rembg_model
+        session = _load_rembg_model()
+        if session and session is not False:
+            logger.info("✓ rembg ONNX model is ready (preloaded or cached)")
+        else:
+            logger.warning("⚠ rembg model failed to initialize")
+    except Exception as e:
+        logger.warning(f"⚠ Could not verify rembg model status: {e}")
+    
     logger.info("=" * 60)
 
 
